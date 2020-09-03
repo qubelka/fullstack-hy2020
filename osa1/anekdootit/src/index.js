@@ -19,12 +19,29 @@ const App = (props) => {
     setPoints(pointsCopy)
   }
 
+  const anecdoteWithMostVotes = Object.entries(points)
+      .sort((a,b) =>
+        b[1] - a[1])
+      .shift()
+
   return (
     <div>
+      <p style={{fontSize: "26px", fontWeight: "bold"}}>Anecdote of the day</p>
       <p>{props.anecdotes[selected]}</p>
       <p>has {points[selected]} votes</p>
       <Button text="vote" handleClick={vote}/>
       <Button text="next anecdote" handleClick={next}/>
+
+      <p style={{fontSize: "26px", fontWeight: "bold"}}>Anecdote with most votes</p>
+      {anecdoteWithMostVotes[1] > 0 ? (
+          <>
+              <p>{props.anecdotes[anecdoteWithMostVotes[0]]}</p>
+              <p>has {points[anecdoteWithMostVotes[0]]} votes</p>
+          </>
+      ) : (
+          <p>No votes yet</p>
+          )
+       }
     </div>
   )
 }
