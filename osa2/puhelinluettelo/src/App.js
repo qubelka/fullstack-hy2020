@@ -1,4 +1,7 @@
 import React, { useState } from 'react'
+import Filter from './components/Filter'
+import PersonForm from "./components/PersonForm";
+import Persons from "./components/Persons";
 
 const App = () => {
     const [persons, setPersons] = useState([
@@ -23,7 +26,7 @@ const App = () => {
                     name: newName,
                     number: newNumber
                 }
-                ))
+            ))
             setNewName('')
             setNewNumber('')
         } else if (!{newName}.newName || !{newNumber}.newNumber) {
@@ -40,29 +43,20 @@ const App = () => {
     return (
         <div>
             <h1>Phonebook</h1>
-            <div>
-                <label htmlFor="filter">filter by name: </label>
-                <input id="filter" type="text" onChange={handleChange(setFilter)}/>
-            </div>
+            <Filter handleChange={handleChange} setFilter={setFilter}/>
             <h2>Add new phone number</h2>
-            <form onSubmit={addNameAndNumber}>
-                <div>
-                    <label htmlFor="name">name: </label>
-                    <input id="name" value={newName} onChange={handleChange(setNewName)} />
-                </div>
-                <div>
-                    <label htmlFor="number">number: </label>
-                    <input id="number" value={newNumber} onChange={handleChange(setNewNumber)} />
-                </div>
-                <div><button type="submit">add</button></div>
-            </form>
+            <PersonForm
+                addNameAndNumber={addNameAndNumber}
+                handleChange={handleChange}
+                newName={newName}
+                newNumber={newNumber}
+                setNewName={setNewName}
+                setNewNumber={setNewNumber}
+            />
             <h2>Numbers</h2>
-            <ul style={{listStyleType:"none", padding:0, margin:0}}>
-                {filteredPersons.map(person => <li key={person.name}>{person.name} {person.number}</li>)}
-            </ul>
+            <Persons filteredPersons={filteredPersons} />
         </div>
     )
-
 }
 
 export default App
