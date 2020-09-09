@@ -11,6 +11,8 @@ const App = () => {
         setFilter(event.target.value)
     }
 
+    const showFullCountryInfo = (name) => setFilter(name)
+
     useEffect(() => {
         axios
             .get('https://restcountries.eu/rest/v2/all')
@@ -28,7 +30,12 @@ const App = () => {
             const country = filteredCountries[0]
             return <CountryFullInfo country={country}/>
         } else if (filteredCountries.length > 1 && filteredCountries.length < 11) {
-            return <Countries filteredCountries={filteredCountries} />
+            return (
+                <Countries
+                    filteredCountries={filteredCountries}
+                    showFullCountryInfo={showFullCountryInfo}
+                />
+            )
         } else {
             return <p>Too many matches, specify another filter</p>
         }
