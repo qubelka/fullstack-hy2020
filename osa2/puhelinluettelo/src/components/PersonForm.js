@@ -1,15 +1,14 @@
 import React from "react";
+import InputField from "./InputField";
 
 const PersonForm = ({addNameAndNumber, newName, newNumber, handleChange, setNewName, setNewNumber}) =>
         <form onSubmit={addNameAndNumber}>
-            <div>
-                <label htmlFor='name'>name: </label>
-                <input id='name' value={newName} onChange={handleChange(setNewName)} />
-            </div>
-            <div>
-                <label htmlFor='number'>number: </label>
-                <input id='number' value={newNumber} onChange={handleChange(setNewNumber)} />
-            </div>
+            <InputField id='name' value={newName} onChange={handleChange(setNewName)}>
+                name:
+            </InputField>
+            <InputField id='number' value={newNumber} onChange={handleChange(setNewNumber)}>
+                number:
+            </InputField>
             <div><button type='submit'>add</button></div>
         </form>
 
