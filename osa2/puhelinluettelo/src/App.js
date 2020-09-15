@@ -44,6 +44,17 @@ const App = () => {
         }
     }
 
+    const deletePerson = id => {
+        personService
+            .remove(id)
+            .then(() => {
+                setPersons(persons.filter(person => person.id !== id))
+            })
+            .catch(error => {
+                alert(`Could not delete a person with an id ${id}`)
+            })
+    }
+
     const filteredPersons = persons.filter(person => person.name.toLowerCase().includes(filter.toLowerCase()))
 
     const handleChange = (setFunction) => (event) => setFunction(event.target.value)
@@ -62,7 +73,7 @@ const App = () => {
                 setNewNumber={setNewNumber}
             />
             <h2>Numbers</h2>
-            <Persons filteredPersons={filteredPersons} />
+            <Persons filteredPersons={filteredPersons} deletePerson={deletePerson} />
         </div>
     )
 }
