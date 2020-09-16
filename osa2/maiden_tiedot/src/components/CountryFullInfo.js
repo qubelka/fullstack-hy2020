@@ -26,7 +26,7 @@ const CountryFullInfo = ({country}) => {
             <Languages country={country}/>
             <img height={'80'} width={'110'} src={country.flag} alt={`Flag of ${country.name}`}/>
             <h2>Weather in {country.name}</h2>
-            {weather ? <Weather weather={weather}/> : ''}
+            {weather ? <Weather weather={weather}/> : `Could not find weather information for ${country.name}`}
         </>
     )
 }
