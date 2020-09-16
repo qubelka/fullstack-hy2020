@@ -9,6 +9,7 @@ const App = () => {
     const [newName, setNewName] = useState('')
     const [newNumber, setNewNumber] = useState('')
     const [filter, setFilter] = useState('')
+    const [error, setError] = useState(false)
 
     useEffect(() => {
         personService
@@ -16,6 +17,7 @@ const App = () => {
             .then(personList => {
                 setPersons(personList)
             })
+            .catch(() => setError(true))
     }, [])
 
     const addNameAndNumber = (event) => {
@@ -40,7 +42,7 @@ const App = () => {
         } else if (!{newName}.newName || !{newNumber}.newNumber) {
             alert('Name or phone number missing')
         } else {
-            alert(`${newName} is already added to phonebook`)
+            updatePerson(persons.find(person => person.name === {newName}.newName), {newNumber}.newNumber)
         }
     }
 
@@ -54,6 +56,26 @@ const App = () => {
                 .catch(error => {
                     alert(`'${person.name}' was already deleted from the server`)
                     setPersons(persons.filter(p => p.id !== person.id))
+                })
+        }
+    }
+
+    const updatePerson = (person, newNumber) => {
+        if (window.confirm(`${person.name} is already added to phonebook, replace the old number with a new one?`)) {
+            const updatedPerson = {...person, number:newNumber}
+
+            personService
+                .update(person.id, updatedPerson)
+                .then(returnedPerson => {
+                    setPersons(persons.map(p => p.id === person.id ? returnedPerson : p))
+                    setNewName('')
+                    setNewNumber('')
+                })
+                .catch(error => {
+                    alert(`'${person.name}' was already deleted from the server`)
+                    setPersons(persons.filter(p => p.id !== person.id))
+                    setNewName('')
+                    setNewNumber('')
                 })
         }
     }
@@ -77,6 +99,7 @@ const App = () => {
             />
             <h2>Numbers</h2>
             <Persons filteredPersons={filteredPersons} deletePerson={deletePerson} />
+            {error && <p>Could not load the person list from the server</p>}
         </div>
     )
 }

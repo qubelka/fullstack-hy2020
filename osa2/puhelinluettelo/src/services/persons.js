@@ -18,4 +18,8 @@ const remove = id => {
     return returnData(axios.delete(`${url}/${id}`))
 }
 
-export default { getAll, create, remove }
+const update = (id, updatedPerson) => {
+    return returnData(axios.put(`${url}/${id}`, updatedPerson))
+}
+
+export default { getAll, create, remove, update }
