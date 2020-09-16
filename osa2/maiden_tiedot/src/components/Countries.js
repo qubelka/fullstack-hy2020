@@ -1,16 +1,5 @@
 import React from "react";
-
-const Country = ({country, showFullCountryInfo}) => {
-    const name = country.name
-    return (
-        <>
-            <li>
-                {name}&nbsp;
-                <button onClick={() => showFullCountryInfo(name)}>show</button>
-            </li>
-        </>
-    )
-}
+import Country from "./Country";
 
 const Countries = ({filteredCountries, showFullCountryInfo}) =>
     <ul style={{listStyleType:'none', padding:0, marginTop:10}}>

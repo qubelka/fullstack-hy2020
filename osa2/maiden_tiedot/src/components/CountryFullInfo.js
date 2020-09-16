@@ -15,7 +15,6 @@ const CountryFullInfo = ({country}) => {
             })
     }, [country])
 
-
     return (
         <>
             <h1>{country.name}</h1>

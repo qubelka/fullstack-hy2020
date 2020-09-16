@@ -44,7 +44,7 @@ const App = () => {
     return (
         <div>
             <label htmlFor='filter'>Find countries </label>
-            <input id='filter' type='text' onChange={handleFilter}/>
+            <input id='filter' type='text' value={filter} onChange={handleFilter}/>
             {filter ? renderList() : <p>Please enter some search criteria</p>}
         </div>
     )

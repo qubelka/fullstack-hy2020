@@ -1,6 +1,5 @@
 import React from "react";
-
-const Language = ({language}) => <li>{language.name}</li>
+import Language from "./Language";
 
 const Languages = ({country}) =>
     <ul>
