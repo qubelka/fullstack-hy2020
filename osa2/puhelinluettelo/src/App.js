@@ -44,15 +44,18 @@ const App = () => {
         }
     }
 
-    const deletePerson = id => {
-        personService
-            .remove(id)
-            .then(() => {
-                setPersons(persons.filter(person => person.id !== id))
-            })
-            .catch(error => {
-                alert(`Could not delete a person with an id ${id}`)
-            })
+    const deletePerson = person => {
+        if (window.confirm(`Delete ${person.name}?`)) {
+            personService
+                .remove(person.id)
+                .then(() => {
+                    setPersons(persons.filter(p => p.id !== person.id))
+                })
+                .catch(error => {
+                    alert(`'${person.name}' was already deleted from the server`)
+                    setPersons(persons.filter(p => p.id !== person.id))
+                })
+        }
     }
 
     const filteredPersons = persons.filter(person => person.name.toLowerCase().includes(filter.toLowerCase()))

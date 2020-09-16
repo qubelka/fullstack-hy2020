@@ -1,13 +1,11 @@
 import React from "react";
-
-const Button = ({type='submit', handleClick, children}) =>
-    <button type={type} onClick={handleClick}>{children}</button>
+import Button from "./Button";
 
 const Person = ({person, deletePerson}) =>
     <li>
-            {person.name} &nbsp;
-            {person.number} &nbsp;
-            <Button handleClick={() => deletePerson(person.id)}>delete</Button>
+        {person.name} &nbsp;
+        {person.number} &nbsp;
+        <Button handleClick={() => deletePerson(person)}>delete</Button>
     </li>
 
 export default Person
