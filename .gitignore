@@ -4,3 +4,6 @@
 
 # environment variables
 .env
+
+# node.js
+node_modules
