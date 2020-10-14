@@ -1,5 +1,6 @@
 const express = require('express')
 const blogsRouter = express.Router()
+const jwt = require('jsonwebtoken')
 const Blog = require('../models/blog')
 const User = require('../models/user')
 
@@ -11,7 +12,17 @@ blogsRouter.get('/', async (request, response) => {
 
 blogsRouter.post('/', async (request, response) => {
   const body = request.body
-  const user = await User.findById(body.userId)
+  const decodedToken = jwt.verify(request.token, process.env.SECRET)
+  if (!request.token || !decodedToken.id) {
+    return response.status(401).json({ error: 'token missing or invalid' })
+  }
+
+  const user = await User.findById(decodedToken.id)
+
+  if (!user) {
+    return response.status(401).json({ error: 'your session has expired, ' +
+        'please log in again to add new blogs' })
+  }
 
   const blog = new Blog({
     title: body.title,
@@ -46,8 +57,17 @@ blogsRouter.put('/:id', async (request, response) => {
 })
 
 blogsRouter.delete('/:id', async (request, response) => {
-  await Blog.findByIdAndRemove(request.params.id)
-  response.status(204).end()
+  const blog = await Blog.findById(request.params.id)
+  if (!blog) {
+    return response.status(400).json({ error: 'blog already removed' })
+  }
+
+  const user = jwt.verify(request.token, process.env.SECRET)
+  if (blog.user.toString() === user.id) {
+    await blog.remove()
+    return response.status(204).end()
+  }
+  response.status(401).json({ error: 'token missing or invalid' })
 })
 
 module.exports = blogsRouter

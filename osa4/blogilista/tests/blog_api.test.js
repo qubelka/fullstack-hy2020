@@ -9,12 +9,19 @@ const api = supertest(app)
 
 const Blog = require('../models/blog')
 
-describe('when there are initially some notes saved', () => {
+describe('when there is initially some blogs saved', () => {
+  let token
+
   beforeEach(async () => {
     await Blog.deleteMany({})
     await Blog.insertMany(helper.initialBlogs)
-  })
 
+    const response = await api
+      .post('/api/login')
+      .send({ username: 'mluukkai', password: 'salainen' })
+
+    token = response.body.token
+  })
   test('blogs are returned as json', async () => {
     await api
       .get('/api/blogs')
@@ -52,6 +59,7 @@ describe('when there are initially some notes saved', () => {
       await api
         .post('/api/blogs')
         .send(newBlog)
+        .set('Authorization', `Bearer ${token}`)
         .expect(201)
         .expect('Content-Type', /application\/json/)
 
@@ -215,7 +223,7 @@ describe('when there is initially some users at db', () => {
     await User.deleteMany({})
     const initialUsersCopy = JSON.parse(JSON.stringify(helper.initialUsers))
     const usersWithHashedPasswords = await Promise.all(initialUsersCopy
-      .map( (user) =>  helper.addUserToDb(user)))
+      .map(user =>  helper.addUserToDb(user)))
     await User.insertMany(usersWithHashedPasswords)
   })
 
