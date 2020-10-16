@@ -14,6 +14,12 @@ const initialBlogs = [
     author: 'Edsger W. Dijkstra',
     url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
     likes: 5
+  },
+  {
+    title: 'Test blog',
+    author: 'Matti Luukkainen',
+    url: 'https://somesite.com/',
+    likes: 5
   }
 ]
 
@@ -30,7 +36,7 @@ const initialUsers = [
   }
 ]
 
-const addUserToDb = async (user) => {
+const replacePasswordWithHash = async (user) => {
   const passwordHash = await bcrypt.hash(user.password, 10)
   delete user.password
   return {
@@ -38,6 +44,21 @@ const addUserToDb = async (user) => {
     passwordHash
   }
 }
+
+const newBlog = {
+  title: 'First class tests',
+  author: 'Robert C. Martin',
+  url: 'http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.htmll',
+  likes: 10
+}
+
+const newUser = {
+  username: 'new_user',
+  name: 'New User',
+  password: 'password'
+}
+
+const invalidId = '5a3d5da59070081a82a3445'
 
 const blogsInDb = async () => {
   const notes = await Blog.find({})
@@ -57,12 +78,23 @@ const nonExistingId = async () => {
   return blog._id.toString()
 }
 
+const errorMessages = {
+  uniqueUsername: '`username` to be unique',
+  minLengthUsername: 'shorter than the minimum allowed length',
+  requiredUsername: '`username` is required',
+  missingOrTooShortPassword: 'user should have a password of minimum 3 characters in length'
+}
+
 module.exports =
   {
     initialBlogs,
     initialUsers,
-    addUserToDb,
+    replacePasswordWithHash,
     blogsInDb,
+    newBlog,
+    newUser,
+    invalidId,
     usersInDb,
-    nonExistingId
+    nonExistingId,
+    errorMessages
   }

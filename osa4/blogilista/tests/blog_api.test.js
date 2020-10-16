@@ -1,6 +1,5 @@
 const mongoose = require('mongoose')
 const supertest = require('supertest')
-const bcrypt = require('bcrypt')
 const User = require('../models/user')
 const helper = require('./test_helper')
 const app = require('../app')
@@ -10,18 +9,11 @@ const api = supertest(app)
 const Blog = require('../models/blog')
 
 describe('when there is initially some blogs saved', () => {
-  let token
-
   beforeEach(async () => {
     await Blog.deleteMany({})
     await Blog.insertMany(helper.initialBlogs)
-
-    const response = await api
-      .post('/api/login')
-      .send({ username: 'mluukkai', password: 'salainen' })
-
-    token = response.body.token
   })
+
   test('blogs are returned as json', async () => {
     await api
       .get('/api/blogs')
@@ -48,89 +40,113 @@ describe('when there is initially some blogs saved', () => {
   })
 
   describe('adding a new blog', () => {
-    test('succeeds with a valid data', async () => {
-      const newBlog = {
-        title: 'First class tests',
-        author: 'Robert C. Martin',
-        url: 'http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.htmll',
-        likes: 10
-      }
+    describe('when user is authenticated', () => {
+      let token
+
+      beforeEach(async () => {
+        await User.deleteMany({})
+        const user = Object.assign({}, helper.initialUsers[0])
+        const userWithHashedPassword = await helper.replacePasswordWithHash(user)
+        await User.insertMany([userWithHashedPassword])
+
+        const response = await api
+          .post('/api/login')
+          .send({ username: helper.initialUsers[0].username,
+            password: helper.initialUsers[0].password })
+
+        token = response.body.token
+      })
+
+      test('succeeds with valid data', async () => {
+        await api
+          .post('/api/blogs')
+          .send(helper.newBlog)
+          .set('Authorization', `Bearer ${token}`)
+          .expect(201)
+          .expect('Content-Type', /application\/json/)
+
+        const blogsAtEnd = await helper.blogsInDb()
+        const titles = blogsAtEnd.map(blog => blog.title)
+
+        expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length + 1)
+        expect(titles).toContain('First class tests')
+      })
+
+      test('succeeds if parameter likes is left empty, sets likes to 0', async () => {
+        const newBlogWithoutLikes =
+          (({ title, author, url }) => ({ title, author, url }))(helper.newBlog)
+
+        const response = await api
+          .post('/api/blogs')
+          .send(newBlogWithoutLikes)
+          .set('Authorization', `Bearer ${token}`)
+
+        expect(response.status).toBe(201)
+        expect(response.body.likes).toBe(0)
+      })
+
+      test('fails with status code 400 if title missing', async () => {
+        const newBlogWithoutTitle =
+          (({ author, url, likes }) => ({ author, url, likes }))(helper.newBlog)
+
+        await api
+          .post('/api/blogs')
+          .send(newBlogWithoutTitle)
+          .set('Authorization', `Bearer ${token}`)
+          .expect(400)
+
+        const blogsAtEnd = await helper.blogsInDb()
+
+        expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
+      })
+
+      test('fails with status code 400 if author missing', async () => {
+        const newBlogWithoutAuthor =
+          (({ title, url, likes }) => ({ title, url, likes }))(helper.newBlog)
+
+        await api
+          .post('/api/blogs')
+          .send(newBlogWithoutAuthor)
+          .set('Authorization', `Bearer ${token}`)
+          .expect(400)
+
+        const blogsAtEnd = await helper.blogsInDb()
+
+        expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
+      })
+
+      test('fails with status code 400 if url missing', async () => {
+        const newBlogWithoutUrl =
+          (({ title, author, likes }) => ({ title, author, likes }))(helper.newBlog)
+
+        await api
+          .post('/api/blogs')
+          .send(newBlogWithoutUrl)
+          .set('Authorization', `Bearer ${token}`)
+          .expect(400)
+
+        const blogsAtEnd = await helper.blogsInDb()
+
+        expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
+      })
+
+    })
+
+    test('fails with status code 401 if user is not authenticated', async () => {
+      const user = Object.assign({}, helper.initialUsers[1])
+      const userWithHashedPassword = await helper.replacePasswordWithHash(user)
+      await User.create(userWithHashedPassword)
 
       await api
         .post('/api/blogs')
-        .send(newBlog)
-        .set('Authorization', `Bearer ${token}`)
-        .expect(201)
-        .expect('Content-Type', /application\/json/)
+        .send(helper.newBlog)
+        .expect(401)
 
       const blogsAtEnd = await helper.blogsInDb()
       const titles = blogsAtEnd.map(blog => blog.title)
 
-      expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length + 1)
-      expect(titles).toContain('First class tests')
-    })
-
-    test('succeeds if parameter likes is left empty, sets likes to 0', async () => {
-      const newBlog = {
-        title: 'First class tests',
-        author: 'Robert C. Martin',
-        url: 'http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.htmll'
-      }
-
-      const response = await api.post('/api/blogs').send(newBlog)
-      expect(response.status).toBe(201)
-      expect(response.body.likes).toBe(0)
-    })
-
-    test('fails with status code 400 if title missing', async () => {
-      const newBlog = {
-        author: 'Robert C. Martin',
-        url: 'http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.htmll',
-        likes: 10
-      }
-
-      await api
-        .post('/api/blogs')
-        .send(newBlog)
-        .expect(400)
-
-      const blogsAtEnd = await helper.blogsInDb()
-
       expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
-    })
-
-    test('fails with status code 400 if author missing', async () => {
-      const newBlog = {
-        title: 'First class tests',
-        url: 'http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.htmll',
-        likes: 10
-      }
-
-      await api
-        .post('/api/blogs')
-        .send(newBlog)
-        .expect(400)
-
-      const blogsAtEnd = await helper.blogsInDb()
-
-      expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
-    })
-
-    test('fails with status code 400 if url missing', async () => {
-      const newBlog = {
-        title: 'First class tests',
-        author: 'Robert C. Martin',
-        likes: 10
-      }
-
-      await api
-        .post('/api/blogs')
-        .send(newBlog)
-        .expect(400)
-
-      const blogsAtEnd = await helper.blogsInDb()
-
-      expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
+      expect(titles).not.toContain('First class tests')
     })
   })
 
@@ -170,10 +186,8 @@ describe('when there is initially some blogs saved', () => {
     })
 
     test('fails with status code 400 if id is invalid', async () => {
-      const invalidId = '5a3d5da59070081a82a3445'
-
       await api
-        .put(`/api/blogs/${invalidId}`)
+        .put(`/api/blogs/${helper.invalidId}`)
         .expect(400)
 
       const blogsAtEnd = await helper.blogsInDb()
@@ -182,38 +196,59 @@ describe('when there is initially some blogs saved', () => {
   })
 
   describe('deletion of a blog',  () => {
-    test('succeeds with status code 204 if id is valid', async () => {
-      const blogsAtStart = await helper.blogsInDb()
-      const blogToDelete = blogsAtStart[0]
+    describe('when user is authenticated', () => {
+      let token
 
-      await api
-        .delete(`/api/blogs/${blogToDelete.id}`)
-        .expect(204)
+      beforeEach(async () => {
+        await User.deleteMany({})
+        const user = Object.assign({}, helper.initialUsers[0])
+        const userWithHashedPassword = await helper.replacePasswordWithHash(user)
+        const idArray = await User.create(userWithHashedPassword)
 
-      const blogsAtEnd = await helper.blogsInDb()
-      expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length - 1)
+        const blog = await Blog.findOne({ author: helper.initialUsers[0].name })
+        blog.user = idArray._id
+        await blog.save()
 
-      const titles = blogsAtEnd.map(blog => blog.title)
-      expect(titles).not.toContain(blogToDelete.title)
-    })
+        const response = await api
+          .post('/api/login')
+          .send({ username: helper.initialUsers[0].username,
+            password: helper.initialUsers[0].password })
 
-    test('fails with status code 404 if blog does not exist', async () => {
-      const validNonexistingId = await helper.nonExistingId()
+        token = response.body.token
 
-      await api
-        .get(`/api/blogs/${validNonexistingId}`)
-        .expect(404)
-    })
+      })
 
-    test('fails with status code 400 if id is invalid', async () => {
-      const invalidId = '5a3d5da59070081a82a3445'
+      test('succeeds with status code 204 if id is valid', async () => {
+        const blogsAtStart = await helper.blogsInDb()
+        const blogToDelete = blogsAtStart[2]
+        await api
+          .delete(`/api/blogs/${blogToDelete.id}`)
+          .set('Authorization', `Bearer ${token}`)
+          .expect(204)
 
-      await api
-        .delete(`/api/blogs/${invalidId}`)
-        .expect(400)
+        const blogsAtEnd = await helper.blogsInDb()
+        expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length - 1)
 
-      const blogsAtEnd = await helper.blogsInDb()
-      expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
+        const titles = blogsAtEnd.map(blog => blog.title)
+        expect(titles).not.toContain(blogToDelete.title)
+      })
+
+      test('fails with status code 404 if blog does not exist', async () => {
+        const validNonexistingId = await helper.nonExistingId()
+
+        await api
+          .get(`/api/blogs/${validNonexistingId}`)
+          .expect(404)
+      })
+
+      test('fails with status code 400 if id is invalid', async () => {
+        await api
+          .delete(`/api/blogs/${helper.invalidId}`)
+          .expect(400)
+
+        const blogsAtEnd = await helper.blogsInDb()
+        expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
+      })
     })
   })
 })
@@ -223,7 +258,7 @@ describe('when there is initially some users at db', () => {
     await User.deleteMany({})
     const initialUsersCopy = JSON.parse(JSON.stringify(helper.initialUsers))
     const usersWithHashedPasswords = await Promise.all(initialUsersCopy
-      .map(user =>  helper.addUserToDb(user)))
+      .map(user =>  helper.replacePasswordWithHash(user)))
     await User.insertMany(usersWithHashedPasswords)
   })
 
@@ -238,15 +273,10 @@ describe('when there is initially some users at db', () => {
   describe('adding a new user', () => {
     test('succeeds with correct information', async () => {
       const usersAtStart = await helper.usersInDb()
-      const newUser = {
-        username: 'new_user',
-        name: 'New User',
-        password: 'secret'
-      }
 
       await api
         .post('/api/users')
-        .send(newUser)
+        .send(helper.newUser)
         .expect(201)
         .expect('Content-Type', /application\/json/)
 
@@ -254,24 +284,21 @@ describe('when there is initially some users at db', () => {
       expect(usersAtEnd).toHaveLength(usersAtStart.length + 1)
 
       const usernames = usersAtEnd.map(user => user.username)
-      expect(usernames).toContain(newUser.username)
+      expect(usernames).toContain(helper.newUser.username)
     })
 
     test('fails with status code 400 if username already exists', async () => {
       const usersAtStart = await helper.usersInDb()
-      const newUser = {
-        username: 'mluukkai',
-        name: 'Matti another account',
-        password: 'secret'
-      }
+      const newUserWithExistingUsername = Object.assign({},
+        helper.newUser, { username: helper.initialUsers[0].username })
 
       const result = await api
         .post('/api/users')
-        .send(newUser)
+        .send(newUserWithExistingUsername)
         .expect(400)
         .expect('Content-Type', /application\/json/)
 
-      expect(result.body.error).toContain('`username` to be unique')
+      expect(result.body.error).toContain(helper.errorMessages.uniqueUsername)
 
       const usersAtEnd = await helper.usersInDb()
       expect(usersAtEnd).toHaveLength(usersAtStart.length)
@@ -279,92 +306,82 @@ describe('when there is initially some users at db', () => {
 
     test('fails with status code 400 if username shorter than 3 characters', async () => {
       const usersAtStart = await helper.usersInDb()
-      const newUser = {
-        username: 'qu',
-        name: 'Qubelka',
-        password: 'secret'
-      }
+      const newUserWithUsernameShorterThan3Characters = Object.assign({}, helper.newUser,
+        {  username: 'ne' })
 
       const result = await api
         .post('/api/users')
-        .send(newUser)
+        .send(newUserWithUsernameShorterThan3Characters)
         .expect(400)
         .expect('Content-Type', /application\/json/)
 
-      expect(result.body.error).toContain('shorter than the minimum allowed length')
+      expect(result.body.error).toContain(helper.errorMessages.minLengthUsername)
 
       const usersAtEnd = await helper.usersInDb()
       expect(usersAtEnd).toHaveLength(usersAtStart.length)
 
       const usernames = usersAtEnd.map(user => user.username)
-      expect(usernames).not.toContain(newUser.username)
+      expect(usernames).not.toContain(newUserWithUsernameShorterThan3Characters.username)
     })
 
     test('fails with status code 400 if username missing', async () => {
       const usersAtStart = await helper.usersInDb()
-      const newUser = {
-        name: 'Qubelka',
-        password: 'secret'
-      }
+      const newUserWithoutUsername =
+        (({ name, password }) => ({ name, password }))(helper.newUser)
 
       const result = await api
         .post('/api/users')
-        .send(newUser)
+        .send(newUserWithoutUsername)
         .expect(400)
         .expect('Content-Type', /application\/json/)
 
-      expect(result.body.error).toContain('`username` is required')
+      expect(result.body.error).toContain(helper.errorMessages.requiredUsername)
 
       const usersAtEnd = await helper.usersInDb()
       expect(usersAtEnd).toHaveLength(usersAtStart.length)
 
       const usernames = usersAtEnd.map(user => user.username)
-      expect(usernames).not.toContain(newUser.username)
+      expect(usernames).not.toContain(newUserWithoutUsername.username)
     })
 
     test('fails with status code 400 if password less than 3 characters', async () => {
       const usersAtStart = await helper.usersInDb()
-      const newUser = {
-        username: 'qubelka',
-        name: 'Qubelka',
-        password: 'se'
-      }
+      const newUserWithPasswordLessThan3Characters = Object.assign({}, helper.newUser,
+        { password: 'pa' })
 
       const result = await api
         .post('/api/users')
-        .send(newUser)
+        .send(newUserWithPasswordLessThan3Characters)
         .expect(400)
         .expect('Content-Type', /application\/json/)
 
-      expect(result.body.error).toContain('user should have a password of minimum 3 characters in length')
+      expect(result.body.error).toContain(helper.errorMessages.missingOrTooShortPassword)
 
       const usersAtEnd = await helper.usersInDb()
       expect(usersAtEnd).toHaveLength(usersAtStart.length)
 
       const usernames = usersAtEnd.map(user => user.username)
-      expect(usernames).not.toContain(newUser.username)
+      expect(usernames).not.toContain(newUserWithPasswordLessThan3Characters.username)
     })
 
     test('fails with status code 400 if password missing', async () => {
       const usersAtStart = await helper.usersInDb()
-      const newUser = {
-        username: 'qubelka',
-        name: 'Qubelka'
-      }
+      const newUserWithoutPassword =
+        (({ username, name }) => ({ username, name }))(helper.newUser)
 
       const result = await api
         .post('/api/users')
-        .send(newUser)
+        .send(newUserWithoutPassword)
         .expect(400)
         .expect('Content-Type', /application\/json/)
 
-      expect(result.body.error).toContain('user should have a password of minimum 3 characters in length')
+      expect(result.body.error).toContain(helper.errorMessages.missingOrTooShortPassword)
 
       const usersAtEnd = await helper.usersInDb()
       expect(usersAtEnd).toHaveLength(usersAtStart.length)
 
       const usernames = usersAtEnd.map(user => user.username)
-      expect(usernames).not.toContain(newUser.username)
+      expect(usernames).not.toContain(newUserWithoutPassword.username)
     })
   })
 })
