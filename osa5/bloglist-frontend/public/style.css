@@ -5,6 +5,17 @@ input {
     display: block;
 }
 
+button {
+    margin: 2px;
+}
+
+.blog {
+    padding: 5px;
+    border-style: dotted;
+    border-color: cornflowerblue;
+    max-width: 250px;
+}
+
 #root {
     padding: 8px;
 }
