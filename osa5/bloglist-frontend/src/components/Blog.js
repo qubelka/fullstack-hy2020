@@ -1,7 +1,23 @@
 import React, { useState } from 'react'
 
-const Blog = ({ blog }) => {
+const Blog = ({ blog, updateBlog, deleteBlog, user }) => {
   const [detailedView, setDetailedView] = useState(false)
+
+  const handleBlogUpdate = () => {
+    const updatedBlog = {
+      author: blog.author,
+      likes: blog.likes + 1,
+      title: blog.title,
+      url: blog.url,
+      user: blog.user.id
+    }
+
+    updateBlog(blog.id, updatedBlog)
+  }
+
+  const handleBlogRemove = () => {
+    deleteBlog(blog.id)
+  }
 
   if (!detailedView) {
     return (
@@ -17,8 +33,9 @@ const Blog = ({ blog }) => {
         <button onClick={() => setDetailedView(false)}>hide</button> <br/>
         {blog.url} <br/>
         {blog.likes}
-        <button>like</button> <br/>
-        {blog.author}
+        <button onClick={handleBlogUpdate}>like</button> <br/>
+        {blog.author} <br/>
+        {blog.user.username === user.username ? <button onClick={handleBlogRemove}>remove blog</button> : ''}
       </div>
     )
   }

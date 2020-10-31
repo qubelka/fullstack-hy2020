@@ -14,10 +14,12 @@ const App = () => {
   const [user, setUser] = useState(null)
   const blogFormRef = useRef()
 
-  useEffect(() => {
-    blogService.getAll().then(blogs =>
-      setBlogs( blogs )
-    )  
+  useEffect( () => {
+    const fetchData = async () => {
+      const blogs = await blogService.getAll()
+      setBlogs(blogs)
+    }
+    fetchData()
   }, [])
 
   useEffect(() => {
@@ -86,6 +88,34 @@ const App = () => {
     }
   }
 
+  const updateBlog = async (id, blogToUpdate) => {
+    try {
+      const updatedBlog = await blogService.update(id, blogToUpdate)
+      if (updatedBlog) {
+        setMessageWithTimeout('Blog updated')
+        const filteredList = blogs.filter(blog => blog.id !== updatedBlog.id)
+        setBlogs(filteredList.concat(updatedBlog))
+      }
+    } catch (exception) {
+      setMessageWithTimeout(exception.response.data.error, 'error')
+    }
+  }
+
+  const deleteBlog = async (id) => {
+    const blogToDelete = blogs.find(blog => blog.id === id)
+
+    if (window.confirm(`Are you sure you want to remove blog ${blogToDelete.title} by ${blogToDelete.author}?`)) {
+      try {
+        await blogService.remove(id)
+        setBlogs(blogs.filter(blog => blog.id !== blogToDelete.id))
+        setMessageWithTimeout('Blog successfully removed!')
+      } catch (exception) {
+        setBlogs(blogs.filter(blog => blog.id !== blogToDelete.id))
+        setMessageWithTimeout(`The blog '${blogToDelete.title}' had already been removed!`, 'error')
+      }
+    }
+  }
+
   const blogForm = () => (
     <Togglable buttonLabel='New blog' ref={blogFormRef}>
       <BlogForm
@@ -104,7 +134,9 @@ const App = () => {
           <button type='button' onClick={handleLogout}>Log out</button>
           {blogForm()}
           <h2>Blogs</h2>
-          {blogs.map(blog => <Blog key={blog.id} blog={blog} />)}
+          {blogs
+            .sort((a,b) => b.likes - a.likes)
+            .map(blog => <Blog key={blog.id} blog={blog} updateBlog={updateBlog} deleteBlog={deleteBlog} user={user}/>)}
         </> :
         <LoginForm
           handleLogin={handleLogin}
