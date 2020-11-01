@@ -1,11 +1,36 @@
-import React from "react";
-import InputField from "./InputField";
+import React, { useState } from 'react'
+import PropTypes from 'prop-types'
+import InputField from './InputField'
 
-const LoginForm = ({handleLogin, handleChange, credentials}) => {
+const LoginForm = ({ handleLogin, doNotShowLoggingMsg }) => {
+  const [credentials, setCredentials] = useState({})
+
+  const handleChange = ({ target }) => {
+    const value = target.value
+    setCredentials({
+      ...credentials,
+      [target.name]: value
+    })
+  }
+
+  const login = (event) => {
+    event.preventDefault()
+
+    const credentialsInfo = {
+      username: credentials.username,
+      password: credentials.password
+    }
+
+    handleLogin(credentialsInfo)
+    setCredentials({})
+  }
+
   return (
     <>
-      <h2>Log in to application</h2>
-      <form onSubmit={handleLogin}>
+      {doNotShowLoggingMsg ?
+        <h2>Log in to application</h2> :
+        <h2>Trying to log in...</h2>}
+      <form onSubmit={login}>
         <div>
           <InputField
             value={credentials.username || ''}
@@ -27,6 +52,11 @@ const LoginForm = ({handleLogin, handleChange, credentials}) => {
       </form>
     </>
   )
+}
+
+LoginForm.propTypes = {
+  handleLogin: PropTypes.func.isRequired,
+  doNotShowLoggingMsg: PropTypes.bool.isRequired
 }
 
 export default LoginForm

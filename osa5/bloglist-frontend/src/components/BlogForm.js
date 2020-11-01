@@ -1,5 +1,6 @@
-import InputField from "./InputField";
-import React, {useState} from "react";
+import InputField from './InputField'
+import PropTypes from 'prop-types'
+import React, { useState } from 'react'
 
 const BlogForm = ({ createBlog }) => {
   const [blog, setBlog] = useState({})
@@ -53,6 +54,10 @@ const BlogForm = ({ createBlog }) => {
       </form>
     </>
   )
+}
+
+BlogForm.propTypes = {
+  createBlog: PropTypes.func.isRequired
 }
 
 export default BlogForm

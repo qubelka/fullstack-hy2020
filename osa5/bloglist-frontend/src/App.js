@@ -4,14 +4,14 @@ import blogService from './services/blogs'
 import loginService from './services/login'
 import Notification from './components/Notification'
 import LoginForm from './components/LoginForm'
-import BlogForm from "./components/BlogForm";
-import Togglable from "./components/Togglable";
+import BlogForm from './components/BlogForm'
+import Togglable from './components/Togglable'
 
 const App = () => {
   const [message, setMessage] = useState({})
   const [blogs, setBlogs] = useState([])
-  const [credentials, setCredentials] = useState({})
   const [user, setUser] = useState(null)
+  const [doNotShowLoggingMsg, setDoNotShowLoggingMsg] = useState(true)
   const blogFormRef = useRef()
 
   useEffect( () => {
@@ -41,32 +41,23 @@ const App = () => {
     }, 5000)
   }
 
-  const handleLoginChange = ({target}) => {
-    const value = target.value
-    setCredentials({
-      ...credentials,
-      [target.name]: value
-    })
-  }
-
-  const handleLogin = async (event) => {
-    event.preventDefault()
-    const credentialsInfo = {
-      username: credentials.username,
-      password: credentials.password
-    }
-
-    try {
-      const user = await loginService.login(credentialsInfo)
-      window.localStorage.setItem(
-        'loggedBlogappUser', JSON.stringify(user)
-      )
-      setUser(user)
-      blogService.setToken(user.token)
-      setCredentials({})
-    } catch (exception) {
-      setMessageWithTimeout('Wrong username or password', 'error')
-    }
+  const login = (credentialsInfo) => {
+    setDoNotShowLoggingMsg(false)
+    // Timeout to imitate longer data fetching (otherwise logging msg not visible)
+    setTimeout(async () => {
+      try {
+        const user = await loginService.login(credentialsInfo)
+        window.localStorage.setItem(
+          'loggedBlogappUser', JSON.stringify(user)
+        )
+        setUser(user)
+        blogService.setToken(user.token)
+        setDoNotShowLoggingMsg(true)
+      } catch (exception) {
+        setMessageWithTimeout('Wrong username or password', 'error')
+        setDoNotShowLoggingMsg(true)
+      }
+    }, 2000)
   }
 
   const handleLogout = () => {
@@ -139,9 +130,9 @@ const App = () => {
             .map(blog => <Blog key={blog.id} blog={blog} updateBlog={updateBlog} deleteBlog={deleteBlog} user={user}/>)}
         </> :
         <LoginForm
-          handleLogin={handleLogin}
-          handleChange={handleLoginChange}
-          credentials={credentials} />
+          handleLogin={login}
+          doNotShowLoggingMsg={doNotShowLoggingMsg}
+        />
       }
     </div>
   )
