@@ -33,20 +33,26 @@ const LoginForm = ({ handleLogin, doNotShowLoggingMsg }) => {
       <form onSubmit={login}>
         <div>
           <InputField
+            id='username'
             value={credentials.username || ''}
             name='username'
             onChange={handleChange}
             placeholder='username'
-          />
+          >
+            username:
+          </InputField>
         </div>
         <div>
           <InputField
+            id='password'
             type='password'
             value={credentials.password || ''}
             name='password'
             onChange={handleChange}
             placeholder='password'
-          />
+          >
+            password:
+          </InputField>
         </div>
         <button type='submit'>Log in</button>
       </form>

@@ -54,7 +54,7 @@ const App = () => {
         blogService.setToken(user.token)
         setDoNotShowLoggingMsg(true)
       } catch (exception) {
-        setMessageWithTimeout('Wrong username or password', 'error')
+        setMessageWithTimeout(exception.response.data.error || 'Wrong username or password', 'error')
         setDoNotShowLoggingMsg(true)
       }
     }, 2000)
