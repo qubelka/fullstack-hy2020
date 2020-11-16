@@ -1,4 +1,5 @@
 const logger = require('./logger')
+const mongoose = require('mongoose')
 
 const requestLogger = (request, response, next) => {
   logger.info('Method:', request.method)
@@ -36,9 +37,20 @@ const tokenExtractor = (request, response, next) => {
   next()
 }
 
+// checks before each request whether the connection is alive
+const dbConnectionCheck = (request, response, next) => {
+  console.log('DB CURRENT STATUS ', mongoose.connection.readyState)
+  if (mongoose.connection.readyState !== 1) {
+    return response.status(500).send({ error: 'No connection to database' })
+  }
+
+  next()
+}
+
 module.exports = {
   requestLogger,
   unknownEndpoint,
   errorHandler,
-  tokenExtractor
+  tokenExtractor,
+  dbConnectionCheck
 }

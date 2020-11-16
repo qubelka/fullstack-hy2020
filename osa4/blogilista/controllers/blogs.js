@@ -29,12 +29,12 @@ blogsRouter.post('/', async (request, response) => {
     author: body.author,
     url: body.url,
     likes: body.likes || 0,
-    user: user._id
+    user: user
   })
 
   const createdBlog = await blog.save()
   user.blogs = user.blogs.concat(createdBlog._id)
-  user.save()
+  await user.save()
   response.status(201).json(createdBlog)
 })
 
@@ -50,6 +50,7 @@ blogsRouter.put('/:id', async (request, response) => {
 
   const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, { new: true })
   if (updatedBlog) {
+    updatedBlog.user = await User.findById(updatedBlog.user)
     response.json(updatedBlog)
   } else {
     response.status(404).end()
@@ -62,9 +63,13 @@ blogsRouter.delete('/:id', async (request, response) => {
     return response.status(400).json({ error: 'blog already removed' })
   }
 
-  const user = jwt.verify(request.token, process.env.SECRET)
-  if (blog.user.toString() === user.id) {
+  const decodedToken = jwt.verify(request.token, process.env.SECRET)
+
+  if (blog.user.toString() === decodedToken.id) {
     await blog.remove()
+    const user = await User.findById(decodedToken.id)
+    user.blogs = user.blogs.filter(blog => blog.id.toString() !== request.params.id.toString())
+    await user.save()
     return response.status(204).end()
   }
   response.status(401).json({ error: 'token missing or invalid' })
