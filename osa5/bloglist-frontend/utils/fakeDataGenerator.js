@@ -9,6 +9,15 @@ const blogData = (blog={}) => {
   }
 }
 
+const userData = (user = {}) => {
+  return {
+    username: user.username || faker.internet.userName(),
+    password: user.password || faker.internet.password(),
+    name: user.name || faker.name.findName()
+  }
+}
+
 module.exports = {
-  blogData
+  blogData,
+  userData
 }

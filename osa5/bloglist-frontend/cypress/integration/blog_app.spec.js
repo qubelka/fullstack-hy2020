@@ -2,13 +2,9 @@ describe('Blog app', function() {
   let user
   beforeEach(function() {
     cy.request('POST', 'http://localhost:3001/api/testing/reset')
-    user = {
-      name: 'Matti Luukkainen',
-      username: 'mluukkai',
-      password: 'salainen'
-    }
-    cy.request('POST', 'http://localhost:3001/api/users/', user)
-    cy.visit('/')
+    cy.createUser()
+      .then(returned => user = returned)
+      .visit('/')
   })
 
   it('Login form is shown', function() {
@@ -63,7 +59,7 @@ describe('Blog app', function() {
     describe('and a blog exists', function() {
       beforeEach(function() {
         cy.createBlog()
-        cy.visit('/')
+          .visit('/')
       })
 
       it('A blog can be liked', function() {
@@ -78,18 +74,20 @@ describe('Blog app', function() {
         cy.get('.blog').should('not.exist')
       })
 
-      it('A blog can be removed only by its author', function() {
-        const notAuthor = {
-          name: 'Arto Hellas',
-          username: 'hellas',
-          password: 'password'
-        }
-        cy.request('POST', 'http://localhost:3001/api/users/', notAuthor)
-        cy.findByText('Log out').click()
-        cy.login({ username: notAuthor.username, password: notAuthor.password })
+      describe('and someone else than author logs in', function() {
+        let notAuthor
+        beforeEach(function() {
+          cy.createUser()
+            .then(returned => notAuthor = returned)
+            .then(() => {
+              cy.login({username: notAuthor.username, password: notAuthor.password})
+            })
+        })
 
-        cy.findByText('view').click()
-        cy.findByText('remove blog').should('not.exist')
+        it('A blog can be removed only by its author', function() {
+          cy.findByText('view').click()
+          cy.findByText('remove blog').should('not.exist')
+        })
       })
     })
 
