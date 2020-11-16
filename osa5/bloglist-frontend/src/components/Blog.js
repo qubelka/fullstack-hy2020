@@ -23,19 +23,29 @@ const Blog = ({ blog, updateBlog, deleteBlog, user }) => {
   if (!detailedView) {
     return (
       <div className='blog'>
-        {blog.title} {blog.author}
+        <div className='blog-item'>
+          {blog.title}, {blog.author}
+        </div>
         <button onClick={() => setDetailedView(true)}>view</button>
       </div>
     )
   } else {
     return (
       <div className='blog'>
-        {blog.title}
-        <button onClick={() => setDetailedView(false)}>hide</button> <br/>
-        {blog.url} <br/>
-        {blog.likes} <br />
-        <button onClick={handleBlogUpdate}>like</button> <br/>
-        {blog.author} <br/>
+        <div className='blog-item'>
+          {blog.title}
+        </div>
+        <button onClick={() => setDetailedView(false)}>hide</button>
+        <div>
+          {blog.url}
+        </div>
+        <div className='blog-item' data-testid='likes'>
+          {blog.likes}
+        </div>
+        <button onClick={handleBlogUpdate}>like</button>
+        <div>
+          {blog.author}
+        </div>
         {blog.user.username === user.username ? <button onClick={handleBlogRemove}>remove blog</button> : ''}
       </div>
     )

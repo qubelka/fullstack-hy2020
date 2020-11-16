@@ -6,15 +6,26 @@ input {
 }
 
 button {
+    padding: 6px;
     margin: 2px;
+    background-color: #e0f5cb;
+    font-weight: bold;
+}
+
+button:hover {
+    background-color: chartreuse;
 }
 
 .blog {
-    padding: 5px;
-    border-style: dotted;
-    border-color: cornflowerblue;
-    max-width: 250px;
+    padding: 14px;
+    border: 3px solid chartreuse;
+    max-width: 400px;
     margin: 5px;
+}
+
+.blog-item {
+    display: inline;
+    margin-right: 10px;
 }
 
 #root {

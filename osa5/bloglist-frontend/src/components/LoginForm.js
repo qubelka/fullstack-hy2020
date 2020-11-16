@@ -30,7 +30,7 @@ const LoginForm = ({ handleLogin, doNotShowLoggingMsg }) => {
       {doNotShowLoggingMsg ?
         <h2>Log in to application</h2> :
         <h2>Trying to log in...</h2>}
-      <form onSubmit={login}>
+      <form onSubmit={login} data-testid='login-form'>
         <div>
           <InputField
             id='username'
