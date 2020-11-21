@@ -1,3 +1,5 @@
+import { VOTE, NEW_ANECDOTE } from '../constants/action-types'
+
 const anecdotesAtStart = [
   'If it hurts, do it more often',
   'Adding manpower to a late software project makes it later!',
@@ -11,14 +13,14 @@ const getId = () => (100000 * Math.random()).toFixed(0)
 
 export const vote = id => {
   return {
-    type: 'VOTE',
+    type: VOTE,
     data: { id }
   }
 }
 
 export const createAnecdote = content => {
   return {
-    type: 'NEW_ANECDOTE',
+    type: NEW_ANECDOTE,
     data: {
       content,
       id: getId(),
@@ -37,18 +39,18 @@ const asObject = (anecdote) => {
 
 const initialState = anecdotesAtStart.map(asObject)
 
-const reducer = (state = initialState, action) => {
+const anecdoteReducer = (state = initialState, action) => {
   switch (action.type) {
-    case 'VOTE':
+    case VOTE:
       const id = action.data.id
       const anecdote = state.find(anecdote => anecdote.id === id)
       const updatedAnecdote = Object.assign({}, anecdote, { votes: anecdote.votes + 1 })
       return state.map(anecdote => anecdote.id === id ? updatedAnecdote : anecdote)
-    case 'NEW_ANECDOTE':
+    case NEW_ANECDOTE:
       return [...state, action.data]
     default:
       return state
   }
 }
 
-export default reducer
+export default anecdoteReducer
