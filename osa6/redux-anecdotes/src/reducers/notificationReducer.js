@@ -3,7 +3,7 @@ import { SET_NOTIFICATION, REMOVE_NOTIFICATION } from '../constants/action-types
 const notificationReducer = (state = '', action) => {
   switch (action.type) {
     case SET_NOTIFICATION:
-      return action.data.content
+      return action.data
     case REMOVE_NOTIFICATION:
       return null
     default:
@@ -11,12 +11,10 @@ const notificationReducer = (state = '', action) => {
   }
 }
 
-export const setNotification = content => {
-  return {
-    type: SET_NOTIFICATION,
-    data: {
-      content
-    }
+export const setNotification = (content, timeout) => {
+  return dispatch => {
+    dispatch({ type: SET_NOTIFICATION, data: content })
+    setTimeout(() => dispatch(removeNotification()), timeout * 1000)
   }
 }
 
