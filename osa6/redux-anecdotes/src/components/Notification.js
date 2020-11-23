@@ -10,13 +10,13 @@ const Notification = () => {
     display: 'none'
   }
 
-  if (notification) {
+  if (notification.message) {
     style.display = 'block'
   }
 
   return (
     <div style={style}>
-      {notification}
+      {notification.message}
     </div>
   )
 }
