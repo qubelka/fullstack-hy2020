@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { useDispatch } from 'react-redux'
+import React, { useState, useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
@@ -8,22 +8,19 @@ import LoginForm from './components/LoginForm'
 import BlogForm from './components/BlogForm'
 import Togglable from './components/Togglable'
 import { setNotification } from './actions/notification-actions'
+import { initializeBlogs } from './actions/blog-actions'
 
 const App = () => {
   const dispatch = useDispatch()
 
-  const [blogs, setBlogs] = useState([])
   const [user, setUser] = useState(null)
   const [doNotShowLoggingMsg, setDoNotShowLoggingMsg] = useState(true)
-  const blogFormRef = useRef()
 
   useEffect(() => {
-    const fetchData = async () => {
-      const blogs = await blogService.getAll()
-      setBlogs(blogs)
-    }
-    fetchData()
-  }, [])
+    dispatch(initializeBlogs())
+  }, [dispatch])
+
+  const blogs = useSelector(store => store.blogs)
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
@@ -61,26 +58,9 @@ const App = () => {
     window.localStorage.removeItem('loggedBlogappUser')
   }
 
-  const addBlog = async newBlog => {
-    blogFormRef.current.toggleVisibility()
-
-    try {
-      const createdBlog = await blogService.create(newBlog)
-      setBlogs(prev => {
-        return [...prev, createdBlog]
-      })
-      dispatch(
-        setNotification(
-          `Added a new blog: ${createdBlog.title} by ${createdBlog.author}`
-        )
-      )
-    } catch (exception) {
-      dispatch(setNotification(exception.response.data.error, 'error'))
-    }
-  }
-
   const updateBlog = async (id, blogToUpdate) => {
-    try {
+    /*
+        try {
       const updatedBlog = await blogService.update(id, blogToUpdate)
       if (updatedBlog) {
         dispatch(setNotification('Blog updated'))
@@ -90,10 +70,12 @@ const App = () => {
     } catch (exception) {
       dispatch(setNotification(exception.response.data.error, 'error'))
     }
+     */
   }
 
   const deleteBlog = async id => {
-    const blogToDelete = blogs.find(blog => blog.id === id)
+    /*
+        const blogToDelete = blogs.find(blog => blog.id === id)
 
     if (
       window.confirm(
@@ -114,11 +96,12 @@ const App = () => {
         )
       }
     }
+     */
   }
 
   const blogForm = () => (
-    <Togglable buttonLabel='New blog' ref={blogFormRef}>
-      <BlogForm createBlog={addBlog} />
+    <Togglable buttonLabel='New blog'>
+      <BlogForm />
     </Togglable>
   )
 

@@ -1,37 +1,32 @@
-import React, { useState, useImperativeHandle } from 'react'
+import React from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import PropTypes from 'prop-types'
+import { toggleVisibility } from '../actions/togglable-actions'
 
-const Togglable = React.forwardRef((props, ref) => {
-  const [visible, setVisible] = useState(false)
+const Togglable = props => {
+  const dispatch = useDispatch()
+  const visible = useSelector(store => store.togglable)
 
   const hideWhenVisible = { display: visible ? 'none' : '' }
   const showWhenVisible = { display: visible ? '' : 'none' }
 
-  const toggleVisibility = () => {
-    setVisible(!visible)
-  }
-
-  useImperativeHandle(ref, () => {
-    return {
-      toggleVisibility
-    }
-  })
-
   return (
     <div>
       <div style={hideWhenVisible}>
-        <button onClick={toggleVisibility}>{props.buttonLabel}</button>
+        <button onClick={() => dispatch(toggleVisibility())}>
+          {props.buttonLabel}
+        </button>
       </div>
       <div style={showWhenVisible}>
         {props.children}
-        <button onClick={toggleVisibility}>cancel</button>
+        <button onClick={() => dispatch(toggleVisibility())}>cancel</button>
       </div>
     </div>
   )
-})
+}
 
 Togglable.propTypes = {
-  buttonLabel: PropTypes.string.isRequired
+  buttonLabel: PropTypes.string.isRequired,
 }
 
 Togglable.displayName = 'Togglable'

@@ -1,30 +1,34 @@
 import InputField from './InputField'
-import PropTypes from 'prop-types'
 import React, { useState } from 'react'
+import { useDispatch } from 'react-redux'
+import { createBlog } from '../actions/blog-actions'
+import { toggleVisibility } from '../actions/togglable-actions'
 
-const BlogForm = ({ createBlog }) => {
+const BlogForm = () => {
+  const dispatch = useDispatch()
   const [blog, setBlog] = useState({})
 
   const handleChange = ({ target }) => {
     const { name, value } = target
-    setBlog((prev) => {
+    setBlog(prev => {
       return {
         ...prev,
-        [name]: value
+        [name]: value,
       }
     })
   }
 
-  const addBlog = (event) => {
+  const addBlog = event => {
     event.preventDefault()
 
     const newBlog = {
       title: blog.title,
       author: blog.author,
-      url: blog.url
+      url: blog.url,
     }
 
-    createBlog(newBlog)
+    dispatch(toggleVisibility())
+    dispatch(createBlog(newBlog))
     setBlog({})
   }
 
@@ -63,10 +67,6 @@ const BlogForm = ({ createBlog }) => {
       </form>
     </>
   )
-}
-
-BlogForm.propTypes = {
-  createBlog: PropTypes.func.isRequired
 }
 
 export default BlogForm
