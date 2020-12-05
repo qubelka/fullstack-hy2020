@@ -1,12 +1,14 @@
 export const SET_NOTIFICATION = 'SET_NOTIFICATION'
 export const REMOVE_NOTIFICATION = 'REMOVE_NOTIFICATION'
 
+let timeoutId = null
+
 export const setNotification = (text, type = 'info', timeout = 5) => {
   return dispatch => {
-    const timeoutId = setTimeout(
-      () => dispatch(removeNotification()),
-      timeout * 1000
-    )
+    if (timeoutId) clearTimeout(timeoutId)
+
+    timeoutId = setTimeout(() => dispatch(removeNotification()), timeout * 1000)
+
     dispatch({
       type: SET_NOTIFICATION,
       data: {
@@ -21,10 +23,5 @@ export const setNotification = (text, type = 'info', timeout = 5) => {
 export const removeNotification = () => {
   return {
     type: REMOVE_NOTIFICATION,
-    data: {
-      type: 'info',
-      text: '',
-      id: null,
-    },
   }
 }

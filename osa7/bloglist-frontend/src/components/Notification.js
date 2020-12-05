@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux'
 const Notification = () => {
   const notification = useSelector(store => store.notification)
 
-  if (!notification.text) {
+  if (!notification) {
     return null
   }
 
