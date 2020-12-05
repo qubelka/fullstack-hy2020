@@ -58,47 +58,6 @@ const App = () => {
     window.localStorage.removeItem('loggedBlogappUser')
   }
 
-  const updateBlog = async (id, blogToUpdate) => {
-    /*
-        try {
-      const updatedBlog = await blogService.update(id, blogToUpdate)
-      if (updatedBlog) {
-        dispatch(setNotification('Blog updated'))
-        const filteredList = blogs.filter(blog => blog.id !== updatedBlog.id)
-        setBlogs(filteredList.concat(updatedBlog))
-      }
-    } catch (exception) {
-      dispatch(setNotification(exception.response.data.error, 'error'))
-    }
-     */
-  }
-
-  const deleteBlog = async id => {
-    /*
-        const blogToDelete = blogs.find(blog => blog.id === id)
-
-    if (
-      window.confirm(
-        `Are you sure you want to remove blog ${blogToDelete.title} by ${blogToDelete.author}?`
-      )
-    ) {
-      try {
-        await blogService.remove(id)
-        setBlogs(blogs.filter(blog => blog.id !== blogToDelete.id))
-        dispatch(setNotification('Blog successfully removed!'))
-      } catch (exception) {
-        setBlogs(blogs.filter(blog => blog.id !== blogToDelete.id))
-        dispatch(
-          setNotification(
-            `The blog '${blogToDelete.title}' had already been removed!`,
-            'error'
-          )
-        )
-      }
-    }
-     */
-  }
-
   const blogForm = () => (
     <Togglable buttonLabel='New blog'>
       <BlogForm />
@@ -121,13 +80,7 @@ const App = () => {
           {blogs
             .sort((a, b) => b.likes - a.likes)
             .map(blog => (
-              <Blog
-                key={blog.id}
-                blog={blog}
-                updateBlog={updateBlog}
-                deleteBlog={deleteBlog}
-                user={user}
-              />
+              <Blog key={blog.id} blog={blog} user={user} />
             ))}
         </>
       ) : (
