@@ -3,9 +3,10 @@ import { useDispatch, useSelector } from 'react-redux'
 import PropTypes from 'prop-types'
 import { updateBlog, deleteBlog } from '../actions/blog-actions'
 
-const Blog = ({ blog, user }) => {
+const Blog = ({ blog }) => {
   const dispatch = useDispatch()
   const blogs = useSelector(store => store.blogs)
+  const user = useSelector(store => store.user)
   const [detailedView, setDetailedView] = useState(false)
 
   const handleBlogUpdate = () => {
@@ -64,7 +65,6 @@ const Blog = ({ blog, user }) => {
 
 Blog.propTypes = {
   blog: PropTypes.object.isRequired,
-  user: PropTypes.object.isRequired,
 }
 
 export default Blog

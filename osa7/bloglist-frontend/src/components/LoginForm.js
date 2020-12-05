@@ -1,36 +1,36 @@
 import React, { useState } from 'react'
-import PropTypes from 'prop-types'
+import { useDispatch } from 'react-redux'
 import InputField from './InputField'
+import { login } from '../actions/user-actions'
 
-const LoginForm = ({ handleLogin, doNotShowLoggingMsg }) => {
+const LoginForm = () => {
+  const dispatch = useDispatch()
   const [credentials, setCredentials] = useState({})
 
   const handleChange = ({ target }) => {
     const value = target.value
     setCredentials({
       ...credentials,
-      [target.name]: value
+      [target.name]: value,
     })
   }
 
-  const login = (event) => {
+  const handleLogin = event => {
     event.preventDefault()
 
     const credentialsInfo = {
       username: credentials.username,
-      password: credentials.password
+      password: credentials.password,
     }
 
-    handleLogin(credentialsInfo)
+    dispatch(login(credentialsInfo))
     setCredentials({})
   }
 
   return (
     <>
-      {doNotShowLoggingMsg ?
-        <h2>Log in to application</h2> :
-        <h2>Trying to log in...</h2>}
-      <form onSubmit={login} data-testid='login-form'>
+      <h2>Log in to application</h2>
+      <form onSubmit={handleLogin} data-testid='login-form'>
         <div>
           <InputField
             id='username'
@@ -58,11 +58,6 @@ const LoginForm = ({ handleLogin, doNotShowLoggingMsg }) => {
       </form>
     </>
   )
-}
-
-LoginForm.propTypes = {
-  handleLogin: PropTypes.func.isRequired,
-  doNotShowLoggingMsg: PropTypes.bool.isRequired
 }
 
 export default LoginForm
