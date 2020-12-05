@@ -48,3 +48,12 @@ button:hover {
   padding: 10px;
   margin-bottom: 10px;
 }
+
+table, th, td {
+  border: 1px solid black;
+  text-align: center;
+}
+
+td {
+  width: 200px;
+}
