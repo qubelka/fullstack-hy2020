@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Switch, Route, Link } from 'react-router-dom'
+import { Switch, Route, Link, useRouteMatch } from 'react-router-dom'
 import Blog from './components/Blog'
 import Notification from './components/Notification'
 import LoginForm from './components/LoginForm'
@@ -9,6 +9,7 @@ import Togglable from './components/Togglable'
 import { initializeBlogs } from './actions/blog-actions'
 import { initializeUser, logout } from './actions/user-actions'
 import Users from './components/Users'
+import User from './components/User'
 
 const App = () => {
   const dispatch = useDispatch()
@@ -26,6 +27,8 @@ const App = () => {
   })
 
   const user = useSelector(store => store.user)
+
+  const match = useRouteMatch('/users/:id')
 
   const blogForm = () => (
     <Togglable buttonLabel='New blog'>
@@ -63,6 +66,9 @@ const App = () => {
             {blogs.map(blog => (
               <Blog key={blog.id} blog={blog} />
             ))}
+          </Route>
+          <Route path='/users/:id'>
+            {match ? <User match={match} /> : null}
           </Route>
           <Route exact path='/users'>
             <Users />
