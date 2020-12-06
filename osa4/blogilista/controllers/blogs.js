@@ -12,7 +12,7 @@ blogsRouter.get('/', async (request, response) => {
 
 blogsRouter.post('/:id/comments', async (request, response) => {
   const body = request.body
-  const blog = await Blog.findById(request.params.id)
+  const blog = await Blog.findById(request.params.id).populate('user', { username: 1, name: 1 })
 
   if (!blog) {
     return response.status(400).json({ error: 'no such blog found' })
@@ -58,7 +58,8 @@ blogsRouter.put('/:id', async (request, response) => {
     title: body.title,
     author: body.author,
     url: body.url,
-    likes: body.likes || 0
+    likes: body.likes || 0,
+    comments: body.comments
   }
 
   const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, { new: true })

@@ -5,6 +5,7 @@ export const INIT_BLOGS = 'INIT_BLOGS'
 export const NEW_BLOG = 'NEW_BLOG'
 export const UPDATE_BLOG = 'UPDATE_BLOG'
 export const DELETE_BLOG = 'DELETE_BLOG'
+export const ADD_COMMENT = 'ADD_COMMENT'
 
 export const initializeBlogs = () => {
   return async dispatch => {
@@ -72,6 +73,20 @@ export const deleteBlog = blogToDelete => {
           'error'
         )
       )
+    }
+  }
+}
+
+export const addComment = (blog, comment) => {
+  return async dispatch => {
+    try {
+      const updatedBlog = await blogService.addComment(blog.id, { comment })
+      dispatch({
+        type: ADD_COMMENT,
+        data: updatedBlog,
+      })
+    } catch (exception) {
+      dispatch(setNotification(exception.response.data.error, 'error'))
     }
   }
 }

@@ -3,6 +3,7 @@ import {
   NEW_BLOG,
   UPDATE_BLOG,
   DELETE_BLOG,
+  ADD_COMMENT,
 } from '../actions/blog-actions'
 
 const blogReducer = (blogs = [], action) => {
@@ -17,6 +18,9 @@ const blogReducer = (blogs = [], action) => {
       return [...filteredList, updatedBlog]
     case DELETE_BLOG:
       return blogs.filter(blog => blog.id !== action.data)
+    case ADD_COMMENT:
+      const list = blogs.filter(blog => blog.id !== action.data.id)
+      return [...list, action.data]
     default:
       return blogs
   }

@@ -56,7 +56,9 @@ const App = () => {
                 {blogs.map(blog => (
                   <tr key={blog.id}>
                     <td>
-                      <Link to={`/blogs/${blog.id}`}>{blog.title}</Link>
+                      <Link to={`/blogs/${blog.id}`}>
+                        {blog.title} by {blog.author}
+                      </Link>
                     </td>
                   </tr>
                 ))}

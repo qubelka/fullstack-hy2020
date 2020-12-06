@@ -1,6 +1,6 @@
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { updateBlog, deleteBlog } from '../actions/blog-actions'
+import { updateBlog, deleteBlog, addComment } from '../actions/blog-actions'
 
 const Blog = ({ match }) => {
   const dispatch = useDispatch()
@@ -11,16 +11,24 @@ const Blog = ({ match }) => {
 
   if (!blog) return null
 
-  const handleBlogUpdate = () => {
+  const handleLike = () => {
     const updatedBlog = {
       author: blog.author,
       likes: blog.likes + 1,
       title: blog.title,
       url: blog.url,
       user: blog.user.id,
+      comments: blog.comments,
     }
 
     dispatch(updateBlog(blog.id, updatedBlog))
+  }
+
+  const handleComment = e => {
+    e.preventDefault()
+    const comment = e.target.commentField.value
+    e.target.commentField.value = ''
+    dispatch(addComment(blog, comment))
   }
 
   const handleBlogRemove = () => {
@@ -44,13 +52,25 @@ const Blog = ({ match }) => {
       <div className='blog-item' data-testid='likes'>
         {blog.likes}
       </div>
-      <button onClick={handleBlogUpdate}>like</button>
+      <button onClick={handleLike}>like</button>
       <div>{blog.author}</div>
       {blog.user.username === user.username ? (
         <button onClick={handleBlogRemove}>remove blog</button>
       ) : (
         ''
       )}
+      <div>
+        <h3>comments</h3>
+        <form onSubmit={handleComment}>
+          <input type='text' name='commentField' />
+          <button type='submit'>add comment</button>
+        </form>
+        <ul>
+          {blog.comments.map(comment => (
+            <li key={comment.slice(6)}>{comment}</li>
+          ))}
+        </ul>
+      </div>
     </div>
   )
 }
