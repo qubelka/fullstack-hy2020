@@ -1,13 +1,14 @@
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Switch, Route, Link, useRouteMatch } from 'react-router-dom'
+import Menu from './components/Menu'
 import Blog from './components/Blog'
 import Notification from './components/Notification'
 import LoginForm from './components/LoginForm'
 import BlogForm from './components/BlogForm'
 import Togglable from './components/Togglable'
 import { initializeBlogs } from './actions/blog-actions'
-import { initializeUser, logout } from './actions/user-actions'
+import { initializeUser } from './actions/user-actions'
 import Users from './components/Users'
 import User from './components/User'
 
@@ -39,25 +40,11 @@ const App = () => {
 
   return (
     <div>
+      {user ? <Menu /> : null}
       <h1>Bloglist app</h1>
       <Notification />
 
-      {user ? (
-        <>
-          <p>{user.name} logged in</p>
-          <button type='button' onClick={() => dispatch(logout())}>
-            Log out
-          </button>
-          <Link to='/'>
-            <button>Blogs</button>
-          </Link>
-          <Link to='/users'>
-            <button>Users</button>
-          </Link>
-        </>
-      ) : (
-        <LoginForm />
-      )}
+      {user ? null : <LoginForm />}
 
       {user ? (
         <Switch>

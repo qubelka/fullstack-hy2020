@@ -57,3 +57,15 @@ table, th, td {
 td {
   width: 200px;
 }
+
+.header {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background-color: #e0f5cb;
+}
+
+.header li {
+    display: inline;
+    padding: 10px;
+}
