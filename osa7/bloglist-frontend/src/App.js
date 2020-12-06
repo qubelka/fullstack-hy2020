@@ -28,7 +28,8 @@ const App = () => {
 
   const user = useSelector(store => store.user)
 
-  const match = useRouteMatch('/users/:id')
+  const usersMatch = useRouteMatch('/users/:id')
+  const blogsMatch = useRouteMatch('/blogs/:id')
 
   const blogForm = () => (
     <Togglable buttonLabel='New blog'>
@@ -63,15 +64,26 @@ const App = () => {
           <Route exact path='/'>
             {blogForm()}
             <h2>Blogs</h2>
-            {blogs.map(blog => (
-              <Blog key={blog.id} blog={blog} />
-            ))}
+            <table style={{ width: '500px' }}>
+              <tbody>
+                {blogs.map(blog => (
+                  <tr key={blog.id}>
+                    <td>
+                      <Link to={`/blogs/${blog.id}`}>{blog.title}</Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </Route>
           <Route path='/users/:id'>
-            {match ? <User match={match} /> : null}
+            {usersMatch ? <User match={usersMatch} /> : null}
           </Route>
           <Route exact path='/users'>
             <Users />
+          </Route>
+          <Route path='/blogs/:id'>
+            {blogsMatch ? <Blog match={blogsMatch} /> : null}
           </Route>
         </Switch>
       ) : null}

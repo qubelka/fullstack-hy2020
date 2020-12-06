@@ -1,13 +1,15 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import PropTypes from 'prop-types'
 import { updateBlog, deleteBlog } from '../actions/blog-actions'
 
-const Blog = ({ blog }) => {
+const Blog = ({ match }) => {
   const dispatch = useDispatch()
   const blogs = useSelector(store => store.blogs)
   const user = useSelector(store => store.user)
-  const [detailedView, setDetailedView] = useState(false)
+
+  const blog = blogs.find(blog => blog.id === match.params.id)
+
+  if (!blog) return null
 
   const handleBlogUpdate = () => {
     const updatedBlog = {
@@ -33,38 +35,24 @@ const Blog = ({ blog }) => {
     }
   }
 
-  if (!detailedView) {
-    return (
-      <div className='blog'>
-        <div className='blog-item'>
-          {blog.title}, {blog.author}
-        </div>
-        <button onClick={() => setDetailedView(true)}>view</button>
+  return (
+    <div className='blog'>
+      <h2 className='blog-item'>{blog.title}</h2>
+      <div>
+        <a href={`${blog.url}`}>{blog.url}</a>
       </div>
-    )
-  } else {
-    return (
-      <div className='blog'>
-        <div className='blog-item'>{blog.title}</div>
-        <button onClick={() => setDetailedView(false)}>hide</button>
-        <div>{blog.url}</div>
-        <div className='blog-item' data-testid='likes'>
-          {blog.likes}
-        </div>
-        <button onClick={handleBlogUpdate}>like</button>
-        <div>{blog.author}</div>
-        {blog.user.username === user.username ? (
-          <button onClick={handleBlogRemove}>remove blog</button>
-        ) : (
-          ''
-        )}
+      <div className='blog-item' data-testid='likes'>
+        {blog.likes}
       </div>
-    )
-  }
-}
-
-Blog.propTypes = {
-  blog: PropTypes.object.isRequired,
+      <button onClick={handleBlogUpdate}>like</button>
+      <div>{blog.author}</div>
+      {blog.user.username === user.username ? (
+        <button onClick={handleBlogRemove}>remove blog</button>
+      ) : (
+        ''
+      )}
+    </div>
+  )
 }
 
 export default Blog
