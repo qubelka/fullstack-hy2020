@@ -1,6 +1,7 @@
 import InputField from './InputField'
 import React, { useState } from 'react'
 import { useDispatch } from 'react-redux'
+import { Button, Form } from 'react-bootstrap'
 import { createBlog } from '../actions/blog-actions'
 import { toggleVisibility } from '../actions/togglable-actions'
 
@@ -35,36 +36,40 @@ const BlogForm = () => {
   return (
     <>
       <h2>create new</h2>
-      <form onSubmit={addBlog} data-testid='blog-form'>
-        <InputField
-          id='title'
-          value={blog.title || ''}
-          name='title'
-          onChange={handleChange}
-          placeholder='title'
-        >
-          title
-        </InputField>
-        <InputField
-          id='author'
-          value={blog.author || ''}
-          name='author'
-          onChange={handleChange}
-          placeholder='author'
-        >
-          author
-        </InputField>
-        <InputField
-          id='url'
-          value={blog.url || ''}
-          name='url'
-          onChange={handleChange}
-          placeholder='url'
-        >
-          url
-        </InputField>
-        <button type='submit'>create</button>
-      </form>
+      <Form onSubmit={addBlog} data-testid='blog-form'>
+        <Form.Group>
+          <InputField
+            id='title'
+            value={blog.title || ''}
+            name='title'
+            onChange={handleChange}
+            placeholder='title'
+          >
+            title
+          </InputField>
+          <InputField
+            id='author'
+            value={blog.author || ''}
+            name='author'
+            onChange={handleChange}
+            placeholder='author'
+          >
+            author
+          </InputField>
+          <InputField
+            id='url'
+            value={blog.url || ''}
+            name='url'
+            onChange={handleChange}
+            placeholder='url'
+          >
+            url
+          </InputField>
+          <Button variant='info' size='sm' type='submit'>
+            create
+          </Button>
+        </Form.Group>
+      </Form>
     </>
   )
 }

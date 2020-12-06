@@ -2,6 +2,7 @@ import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import PropTypes from 'prop-types'
 import { toggleVisibility } from '../actions/togglable-actions'
+import { Button } from 'react-bootstrap'
 
 const Togglable = props => {
   const dispatch = useDispatch()
@@ -13,13 +14,23 @@ const Togglable = props => {
   return (
     <div>
       <div style={hideWhenVisible}>
-        <button onClick={() => dispatch(toggleVisibility())}>
+        <Button
+          variant='info'
+          size='sm'
+          onClick={() => dispatch(toggleVisibility())}
+        >
           {props.buttonLabel}
-        </button>
+        </Button>
       </div>
       <div style={showWhenVisible}>
         {props.children}
-        <button onClick={() => dispatch(toggleVisibility())}>cancel</button>
+        <Button
+          variant='info'
+          size='sm'
+          onClick={() => dispatch(toggleVisibility())}
+        >
+          cancel
+        </Button>
       </div>
     </div>
   )

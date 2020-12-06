@@ -1,5 +1,6 @@
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { Button, Row, Col, ListGroup } from 'react-bootstrap'
 import { updateBlog, deleteBlog, addComment } from '../actions/blog-actions'
 
 const Blog = ({ match }) => {
@@ -44,34 +45,90 @@ const Blog = ({ match }) => {
   }
 
   return (
-    <div className='blog'>
-      <h2 className='blog-item'>{blog.title}</h2>
-      <div>
-        <a href={`${blog.url}`}>{blog.url}</a>
-      </div>
-      <div className='blog-item' data-testid='likes'>
-        {blog.likes}
-      </div>
-      <button onClick={handleLike}>like</button>
-      <div>{blog.author}</div>
-      {blog.user.username === user.username ? (
-        <button onClick={handleBlogRemove}>remove blog</button>
-      ) : (
-        ''
-      )}
-      <div>
-        <h3>comments</h3>
-        <form onSubmit={handleComment}>
-          <input type='text' name='commentField' />
-          <button type='submit'>add comment</button>
-        </form>
-        <ul>
-          {blog.comments.map(comment => (
-            <li key={comment.slice(6)}>{comment}</li>
-          ))}
-        </ul>
-      </div>
-    </div>
+    <Row>
+      <Col>
+        <Row>
+          <Col>
+            <h2 className='blog-item'>{blog.title}</h2>
+          </Col>
+        </Row>
+
+        <Row>
+          <Col>
+            <Row>
+              <Col>
+                <a href={`${blog.url}`}>{blog.url}</a>
+              </Col>
+            </Row>
+            <Row>
+              <Col data-testid='likes'>
+                {blog.likes}
+                <Button
+                  variant='info'
+                  size='sm'
+                  style={{ marginLeft: 5 }}
+                  onClick={handleLike}
+                >
+                  like
+                </Button>
+              </Col>
+            </Row>
+            <Row>
+              <Col>{blog.author}</Col>
+            </Row>
+            <Row>
+              <Col>
+                {blog.user.username === user.username ? (
+                  <Button variant='info' size='sm' onClick={handleBlogRemove}>
+                    remove blog
+                  </Button>
+                ) : (
+                  ''
+                )}
+              </Col>
+            </Row>
+          </Col>
+        </Row>
+
+        <Row style={{ marginTop: 20 }}>
+          <Col>
+            <Row>
+              <Col>
+                <h3>comments</h3>
+              </Col>
+            </Row>
+
+            <Row>
+              <Col>
+                <form onSubmit={handleComment}>
+                  <input type='text' name='commentField' />
+                  <Button
+                    variant='info'
+                    size='sm'
+                    style={{ marginLeft: 5 }}
+                    type='submit'
+                  >
+                    add comment
+                  </Button>
+                </form>
+              </Col>
+            </Row>
+
+            <Row style={{ marginTop: 20 }}>
+              <Col>
+                <ListGroup>
+                  {blog.comments.map(comment => (
+                    <ListGroup.Item variant='light' key={comment.slice(6)}>
+                      {comment}
+                    </ListGroup.Item>
+                  ))}
+                </ListGroup>
+              </Col>
+            </Row>
+          </Col>
+        </Row>
+      </Col>
+    </Row>
   )
 }
 

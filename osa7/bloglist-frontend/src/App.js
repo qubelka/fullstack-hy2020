@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Switch, Route, Link, useRouteMatch } from 'react-router-dom'
+import { Table, Row, Col } from 'react-bootstrap'
 import Menu from './components/Menu'
 import Blog from './components/Blog'
 import Notification from './components/Notification'
@@ -41,29 +42,41 @@ const App = () => {
   return (
     <div>
       {user ? <Menu /> : null}
-      <h1>Bloglist app</h1>
-      <Notification />
 
-      {user ? null : <LoginForm />}
+      <Row>
+        <Col>
+          <h1>Bloglist app</h1>
+        </Col>
+      </Row>
+
+      <Row>
+        <Col>
+          <Notification />
+        </Col>
+      </Row>
+
+      <Row>
+        <Col>{user ? null : <LoginForm />}</Col>
+      </Row>
 
       {user ? (
         <Switch>
           <Route exact path='/'>
             {blogForm()}
             <h2>Blogs</h2>
-            <table style={{ width: '500px' }}>
+            <Table striped bordered hover variant='dark'>
               <tbody>
                 {blogs.map(blog => (
                   <tr key={blog.id}>
                     <td>
-                      <Link to={`/blogs/${blog.id}`}>
+                      <Link to={`/blogs/${blog.id}`} style={{ color: 'white' }}>
                         {blog.title} by {blog.author}
                       </Link>
                     </td>
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </Table>
           </Route>
           <Route path='/users/:id'>
             {usersMatch ? <User match={usersMatch} /> : null}

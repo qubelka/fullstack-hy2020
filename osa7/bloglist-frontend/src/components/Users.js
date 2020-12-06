@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { Table } from 'react-bootstrap'
 import { initializeUsers } from '../actions/users-actions'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -15,24 +16,26 @@ const Users = () => {
   return (
     <div>
       <h2>Users</h2>
-      <table>
+      <Table striped bordered hover variant='dark'>
         <thead>
           <tr>
-            <th>username</th>
-            <th scope='col'>blogs created</th>
+            <th>Username</th>
+            <th scope='col'>Blogs created</th>
           </tr>
         </thead>
         <tbody>
           {users.map(user => (
             <tr key={user.username}>
               <td>
-                <Link to={`/users/${user.id}`}>{user.username}</Link>
+                <Link to={`/users/${user.id}`} style={{ color: 'white' }}>
+                  {user.username}
+                </Link>
               </td>
               <td>{user.blogs.length}</td>
             </tr>
           ))}
         </tbody>
-      </table>
+      </Table>
     </div>
   )
 }

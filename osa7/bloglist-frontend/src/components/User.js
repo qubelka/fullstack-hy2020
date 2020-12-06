@@ -1,4 +1,5 @@
 import React from 'react'
+import { ListGroup } from 'react-bootstrap'
 import { useSelector } from 'react-redux'
 
 const User = ({ match }) => {
@@ -10,13 +11,13 @@ const User = ({ match }) => {
 
   return (
     <div>
-      <h2>{user.name}</h2>
-      <strong>added blogs</strong>
-      <ul>
+      <h3>{user.name}</h3>
+      <h5>added blogs</h5>
+      <ListGroup>
         {user.blogs.map(blog => (
-          <li key={blog.title}>{blog.title}</li>
+          <ListGroup.Item key={blog.title}>{blog.title}</ListGroup.Item>
         ))}
-      </ul>
+      </ListGroup>
     </div>
   )
 }
