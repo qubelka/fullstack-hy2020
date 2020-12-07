@@ -1,5 +1,5 @@
 import React from 'react'
-import { ListGroup } from 'react-bootstrap'
+import { Table, Row, Col } from 'react-bootstrap'
 import { useSelector } from 'react-redux'
 
 const User = ({ match }) => {
@@ -10,15 +10,21 @@ const User = ({ match }) => {
   if (!user) return null
 
   return (
-    <div>
-      <h3>{user.name}</h3>
-      <h5>added blogs</h5>
-      <ListGroup>
-        {user.blogs.map(blog => (
-          <ListGroup.Item key={blog.title}>{blog.title}</ListGroup.Item>
-        ))}
-      </ListGroup>
-    </div>
+    <Row style={{ marginTop: 20 }}>
+      <Col sm={{ span: 10, offset: 1 }}>
+        <h3>{user.name}</h3>
+        <h5>Added blogs</h5>
+        <Table striped bordered hover variant='dark'>
+          <tbody>
+            {user.blogs.map(blog => (
+              <tr key={blog.title}>
+                <td>{blog.title}</td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </Col>
+    </Row>
   )
 }
 

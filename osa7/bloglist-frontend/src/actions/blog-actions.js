@@ -31,7 +31,7 @@ export const createBlog = content => {
         )
       )
     } catch (exception) {
-      dispatch(setNotification(exception.response.data.error, 'error'))
+      dispatch(setNotification(exception.response.data.error, 'danger'))
     }
   }
 }
@@ -48,7 +48,7 @@ export const updateBlog = (id, blogToUpdate) => {
         })
       }
     } catch (exception) {
-      dispatch(setNotification(exception.response.data.error, 'error'))
+      dispatch(setNotification(exception.response.data.error, 'danger'))
     }
   }
 }
@@ -70,7 +70,7 @@ export const deleteBlog = blogToDelete => {
       dispatch(
         setNotification(
           `The blog '${blogToDelete.title}' had already been removed!`,
-          'error'
+          'danger'
         )
       )
     }
@@ -86,7 +86,7 @@ export const addComment = (blog, comment) => {
         data: updatedBlog,
       })
     } catch (exception) {
-      dispatch(setNotification(exception.response.data.error, 'error'))
+      dispatch(setNotification(exception.response.data.error, 'danger'))
     }
   }
 }

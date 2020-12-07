@@ -34,7 +34,7 @@ export const login = credentialsInfo => {
       dispatch(
         setNotification(
           exception.response.data.error || 'Wrong username or password',
-          'error'
+          'danger'
         )
       )
     }

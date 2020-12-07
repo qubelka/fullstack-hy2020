@@ -44,39 +44,46 @@ const App = () => {
       {user ? <Menu /> : null}
 
       <Row>
-        <Col>
+        <Col sm={{ span: 10, offset: 1 }}>
           <h1>Bloglist app</h1>
         </Col>
       </Row>
 
       <Row>
-        <Col>
+        <Col sm={{ span: 10, offset: 1 }}>
           <Notification />
         </Col>
       </Row>
 
       <Row>
-        <Col>{user ? null : <LoginForm />}</Col>
+        <Col sm={{ span: 10, offset: 1 }}>{user ? null : <LoginForm />}</Col>
       </Row>
 
       {user ? (
         <Switch>
           <Route exact path='/'>
-            {blogForm()}
-            <h2>Blogs</h2>
-            <Table striped bordered hover variant='dark'>
-              <tbody>
-                {blogs.map(blog => (
-                  <tr key={blog.id}>
-                    <td>
-                      <Link to={`/blogs/${blog.id}`} style={{ color: 'white' }}>
-                        {blog.title} by {blog.author}
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
+            <Row style={{ paddingTop: 20 }}>
+              <Col sm={{ span: 10, offset: 1 }}>
+                {blogForm()}
+                <h2>Blogs</h2>
+                <Table striped bordered hover variant='dark'>
+                  <tbody>
+                    {blogs.map(blog => (
+                      <tr key={blog.id}>
+                        <td>
+                          <Link
+                            to={`/blogs/${blog.id}`}
+                            style={{ color: 'white' }}
+                          >
+                            {blog.title} by {blog.author}
+                          </Link>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+              </Col>
+            </Row>
           </Route>
           <Route path='/users/:id'>
             {usersMatch ? <User match={usersMatch} /> : null}

@@ -1,6 +1,6 @@
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Button, Row, Col, ListGroup } from 'react-bootstrap'
+import { Button, Row, Col, ListGroup, Card } from 'react-bootstrap'
 import { updateBlog, deleteBlog, addComment } from '../actions/blog-actions'
 
 const Blog = ({ match }) => {
@@ -45,39 +45,34 @@ const Blog = ({ match }) => {
   }
 
   return (
-    <Row>
-      <Col>
+    <Row
+      style={{
+        paddingTop: 40,
+        paddingBottom: 40,
+      }}
+    >
+      <Col sm={{ span: 10, offset: 1 }}>
         <Row>
           <Col>
-            <h2 className='blog-item'>{blog.title}</h2>
-          </Col>
-        </Row>
-
-        <Row>
-          <Col>
-            <Row>
-              <Col>
-                <a href={`${blog.url}`}>{blog.url}</a>
-              </Col>
-            </Row>
-            <Row>
-              <Col data-testid='likes'>
-                {blog.likes}
-                <Button
-                  variant='info'
-                  size='sm'
-                  style={{ marginLeft: 5 }}
-                  onClick={handleLike}
-                >
-                  like
-                </Button>
-              </Col>
-            </Row>
-            <Row>
-              <Col>{blog.author}</Col>
-            </Row>
-            <Row>
-              <Col>
+            <Card>
+              <Card.Header as='h5'>{blog.title}</Card.Header>
+              <Card.Body>
+                <Card.Subtitle className='mb-2 text-muted'>
+                  by {blog.author}
+                </Card.Subtitle>
+                <Card.Text data-testid='likes'>
+                  {`Likes: ${blog.likes}`}
+                  <Button
+                    variant='info'
+                    size='sm'
+                    style={{ marginLeft: 5 }}
+                    onClick={handleLike}
+                  >
+                    like
+                  </Button>
+                </Card.Text>
+                <Card.Link href={`${blog.url}`}>{blog.url}</Card.Link>
+                <br />
                 {blog.user.username === user.username ? (
                   <Button variant='info' size='sm' onClick={handleBlogRemove}>
                     remove blog
@@ -85,8 +80,8 @@ const Blog = ({ match }) => {
                 ) : (
                   ''
                 )}
-              </Col>
-            </Row>
+              </Card.Body>
+            </Card>
           </Col>
         </Row>
 
@@ -94,7 +89,7 @@ const Blog = ({ match }) => {
           <Col>
             <Row>
               <Col>
-                <h3>comments</h3>
+                <h3>Comments</h3>
               </Col>
             </Row>
 

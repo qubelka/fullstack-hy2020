@@ -3,7 +3,7 @@ export const REMOVE_NOTIFICATION = 'REMOVE_NOTIFICATION'
 
 let timeoutId = null
 
-export const setNotification = (text, type = 'info', timeout = 5) => {
+export const setNotification = (text, type = 'success', timeout = 5) => {
   return dispatch => {
     if (timeoutId) clearTimeout(timeoutId)
 

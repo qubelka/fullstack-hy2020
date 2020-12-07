@@ -11,7 +11,10 @@ ReactDOM.render(
     <Router>
       <Container>
         <Row>
-          <Col>
+          <Col
+            sm={{ span: 10, offset: 1 }}
+            style={{ backgroundColor: '#e0e7e8' }}
+          >
             <App />
           </Col>
         </Row>
