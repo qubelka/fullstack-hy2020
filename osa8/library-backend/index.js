@@ -159,8 +159,8 @@ const resolvers = {
         return null
       }
 
-      author.born = args.setBornTo
-      authors = authors.map(a => a.name === args.name ? author : a)
+      const updatedAuthor = {...author, born: args.setBornTo}
+      authors = authors.map(a => a.name === args.name ? updatedAuthor : a)
       return author
     }
   },
