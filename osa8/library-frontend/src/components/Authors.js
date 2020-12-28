@@ -1,6 +1,7 @@
 import React from 'react'
 import { useQuery } from '@apollo/client'
 import { ALL_AUTHORS } from '../queries'
+import BirthYearForm from './BirthyearForm'
 
 const Authors = props => {
   const { data, loading, error } = useQuery(ALL_AUTHORS)
@@ -13,7 +14,11 @@ const Authors = props => {
   }
 
   if (error) {
-    return <p>error!</p>
+    if (error.graphQLErrors[0]) {
+      props.setError(error.graphQLErrors[0].message)
+    } else {
+      props.setError(error.message)
+    }
   }
 
   const authors = data.allAuthors
@@ -37,6 +42,7 @@ const Authors = props => {
           ))}
         </tbody>
       </table>
+      <BirthYearForm setError={props.setError} />
     </div>
   )
 }

@@ -13,7 +13,11 @@ const Books = props => {
   }
 
   if (error) {
-    return <p>error!</p>
+    if (error.graphQLErrors[0]) {
+      props.setError(error.graphQLErrors[0].message)
+    } else {
+      props.setError(error.message)
+    }
   }
 
   const books = data.allBooks
