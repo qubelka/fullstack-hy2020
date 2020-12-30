@@ -1,4 +1,4 @@
-const { ApolloServer, gql } = require('apollo-server')
+const { ApolloServer, gql, UserInputError } = require('apollo-server')
 const connect = require('./connect')
 const Book = require('./models/book')
 const Author = require('./models/author')
@@ -71,13 +71,24 @@ const resolvers = {
     async addBook(root, { authorName, authorBorn = null, ...bookInfo }) {
       let author = await Author.findOne({ name: authorName })
       if (!author) {
-        author = await Author.create({
-          name: authorName,
-          born: authorBorn,
-        })
+        try {
+          author = await Author.create({
+            name: authorName,
+            born: authorBorn,
+          })
+        } catch (e) {
+          throw new UserInputError(e.message, {
+            invalidArgs: { authorName, authorBorn },
+          })
+        }
       }
 
-      await Book.create({ ...bookInfo, author: author._id })
+      try {
+        await Book.create({ ...bookInfo, author: author._id })
+      } catch (e) {
+        throw new UserInputError(e.message, { invalidArgs: bookInfo })
+      }
+
       return Book.findOne({ title: bookInfo.title }).populate('author')
     },
     async editAuthor(root, args) {
