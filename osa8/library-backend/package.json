@@ -12,6 +12,7 @@
   "dependencies": {
     "apollo-server": "^2.19.1",
     "graphql": "^15.4.0",
+    "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.11.9",
     "mongoose-unique-validator": "^2.0.3",
     "nodemon": "^2.0.6"
@@ -19,7 +20,7 @@
   "devDependencies": {
     "prettier": "^2.2.1"
   },
-    "prettier": {
+  "prettier": {
     "trailingComma": "es5",
     "tabWidth": 2,
     "semi": false,
