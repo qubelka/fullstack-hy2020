@@ -1,47 +1,61 @@
-import React from 'react'
-import { useQuery } from '@apollo/client'
+import React, { useEffect, useState } from 'react'
+import { useLazyQuery } from '@apollo/client'
+import { getUniqueGenres } from '../helper'
 import { ALL_BOOKS } from '../queries'
+import Genres from './Genres'
+import BookTable from './BookTable'
 
 const Books = props => {
-  const { data, loading, error } = useQuery(ALL_BOOKS)
+  const [books, setBooks] = useState(null)
+  const [genres, setGenres] = useState(null)
+  const [genre, setGenre] = useState(null)
+  const [getFilteredBooks, result] = useLazyQuery(ALL_BOOKS)
+
+  useEffect(() => {
+    getFilteredBooks()
+  }, []) //eslint-disable-line
+
+  useEffect(() => {
+    if (!books && result.data) {
+      const books = result.data.allBooks
+      setBooks(books)
+      setGenres(getUniqueGenres(books))
+    } else if (result.data) {
+      setBooks(result.data.allBooks)
+    }
+  }, [result]) //eslint-disable-line
+
   if (!props.show) {
     return null
   }
 
-  if (loading) {
+  if (result.loading) {
     return <p>loading...</p>
   }
 
-  if (error) {
-    if (error.graphQLErrors[0]) {
-      props.setError(error.graphQLErrors[0].message)
-    } else {
-      props.setError(error.message)
-    }
+  const getBooksByFilter = genre => {
+    setGenre(genre)
+    getFilteredBooks({
+      variables: { genre },
+    })
   }
-
-  const books = data.allBooks
 
   return (
     <div>
       <h2>books</h2>
-
-      <table>
-        <tbody>
-          <tr>
-            <th></th>
-            <th>author</th>
-            <th>published</th>
-          </tr>
-          {books.map(a => (
-            <tr key={a.title}>
-              <td>{a.title}</td>
-              <td>{a.author.name}</td>
-              <td>{a.published}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {genre ? (
+        <p>
+          in genre <strong>{genre}</strong>
+        </p>
+      ) : (
+        ''
+      )}
+      <BookTable books={books} />
+      <Genres
+        genres={genres}
+        getBooksByFilter={getBooksByFilter}
+        setGenre={setGenre}
+      />
     </div>
   )
 }
