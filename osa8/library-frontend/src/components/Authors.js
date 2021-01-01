@@ -42,7 +42,9 @@ const Authors = props => {
           ))}
         </tbody>
       </table>
-      <BirthYearForm setError={props.setError} authors={authors} />
+      {props.token ? (
+        <BirthYearForm setError={props.setError} authors={authors} />
+      ) : null}
     </div>
   )
 }
