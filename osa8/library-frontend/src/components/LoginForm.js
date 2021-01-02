@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react'
 import { useMutation } from '@apollo/client'
 import { LOGIN } from '../queries'
 
-const LoginForm = ({ show, setError, setToken, setPage }) => {
+const LoginForm = ({ show, setError, setToken, setPage, client }) => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [login, result] = useMutation(LOGIN, {
-    onError: error => {
+    onError(error) {
       if (error.graphQLErrors[0]) {
         setError(error.graphQLErrors[0].message)
       } else {
@@ -21,11 +21,16 @@ const LoginForm = ({ show, setError, setToken, setPage }) => {
       setToken(token)
       setPage('authors')
       localStorage.setItem('library-user-token', token)
+      client.resetStore()
     }
   }, [result.data]) //eslint-disable-line
 
   if (!show) {
     return null
+  }
+
+  if (result.loading) {
+    return <p>loading...</p>
   }
 
   const submit = e => {

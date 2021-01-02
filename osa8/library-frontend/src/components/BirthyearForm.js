@@ -21,6 +21,11 @@ const BirthYearForm = ({ setError, authors }) => {
   const submit = async event => {
     event.preventDefault()
 
+    if (!selectedOption) {
+      setError('Please select the author')
+      return
+    }
+
     editBirthyear({
       variables: { name: selectedOption.value, setBornTo: parseInt(born) },
     })
