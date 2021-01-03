@@ -6,24 +6,12 @@ import Genres from './Genres'
 import BookTable from './BookTable'
 
 const Books = props => {
-  const [books, setBooks] = useState(null)
-  const [genres, setGenres] = useState(null)
   const [genre, setGenre] = useState(null)
   const [getFilteredBooks, result] = useLazyQuery(ALL_BOOKS)
 
   useEffect(() => {
     getFilteredBooks()
   }, []) //eslint-disable-line
-
-  useEffect(() => {
-    if (!books && result.data) {
-      const books = result.data.allBooks
-      setBooks(books)
-      setGenres(getUniqueGenres(books))
-    } else if (result.data) {
-      setBooks(result.data.allBooks)
-    }
-  }, [result]) //eslint-disable-line
 
   if (!props.show) {
     return null
@@ -35,9 +23,13 @@ const Books = props => {
 
   const getBooksByFilter = genre => {
     setGenre(genre)
-    getFilteredBooks({
-      variables: { genre },
-    })
+    if (genre) {
+      getFilteredBooks({
+        variables: { genre },
+      })
+    } else {
+      getFilteredBooks()
+    }
   }
 
   return (
@@ -50,12 +42,18 @@ const Books = props => {
       ) : (
         ''
       )}
-      <BookTable books={books} />
-      <Genres
-        genres={genres}
-        getBooksByFilter={getBooksByFilter}
-        setGenre={setGenre}
-      />
+      {result.data ? (
+        <>
+          <BookTable books={result.data.allBooks} />
+          <Genres
+            genres={genre ? [] : getUniqueGenres(result.data.allBooks)}
+            getBooksByFilter={getBooksByFilter}
+            setGenre={setGenre}
+          />
+        </>
+      ) : (
+        ''
+      )}
     </div>
   )
 }

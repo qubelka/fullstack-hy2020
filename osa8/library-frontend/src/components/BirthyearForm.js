@@ -1,20 +1,23 @@
 import React, { useState } from 'react'
 import { useMutation } from '@apollo/client'
 import Select from 'react-select'
-import { ALL_AUTHORS, EDIT_AUTHOR } from '../queries'
+import { EDIT_AUTHOR } from '../queries'
+import { updateAuthorsInCache } from '../helper'
 
 const BirthYearForm = ({ setError, authors }) => {
   const [selectedOption, setSelectedOption] = useState(null)
   const [born, setBorn] = useState('')
 
   const [editBirthyear] = useMutation(EDIT_AUTHOR, {
-    refetchQueries: [{ query: ALL_AUTHORS }],
     onError: error => {
       if (error.graphQLErrors[0]) {
-        setError(error.graphQLErrors[0].message)
+        setError(error.graphQLErrors[0].message, 'error')
       } else {
-        setError(error.message)
+        setError(error.message, 'error')
       }
+    },
+    update: (cache, { data: { editAuthor } }) => {
+      updateAuthorsInCache(editAuthor, cache)
     },
   })
 
@@ -22,7 +25,7 @@ const BirthYearForm = ({ setError, authors }) => {
     event.preventDefault()
 
     if (!selectedOption) {
-      setError('Please select the author')
+      setError('Please select the author', 'error')
       return
     }
 

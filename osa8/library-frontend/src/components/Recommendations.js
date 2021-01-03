@@ -21,9 +21,9 @@ const Recommendations = ({ show, setError }) => {
 
   if (error) {
     if (error.graphQLErrors[0]) {
-      setError(error.graphQLErrors[0].message)
+      setError(error.graphQLErrors[0].message, 'error')
     } else {
-      setError(error.message)
+      setError(error.message, 'error')
     }
   }
 

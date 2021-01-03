@@ -1,9 +1,11 @@
-const { UserInputError, AuthenticationError } = require('apollo-server')
+const { UserInputError, AuthenticationError, PubSub } = require('apollo-server')
 const jwt = require('jsonwebtoken')
 const Book = require('./models/book')
 const Author = require('./models/author')
 const User = require('./models/user')
 const JWT_SECRET = 'secret'
+const pubSub = new PubSub()
+const BOOK_ADDED = 'BOOK_ADDED'
 
 module.exports = {
   Query: {
@@ -52,12 +54,16 @@ module.exports = {
           author = await Author.create({
             name: authorName,
             born: authorBorn,
+            bookCount: 1,
           })
         } catch (e) {
           throw new UserInputError(e.message, {
             invalidArgs: { authorName, authorBorn },
           })
         }
+      } else {
+        author.bookCount = author.bookCount + 1
+        await author.save()
       }
 
       try {
@@ -66,7 +72,10 @@ module.exports = {
         throw new UserInputError(e.message, { invalidArgs: bookInfo })
       }
 
-      return Book.findOne({ title: bookInfo.title }).populate('author')
+      const book = Book.findOne({ title: bookInfo.title }).populate('author')
+      pubSub.publish(BOOK_ADDED, { bookAdded: book })
+
+      return book
     },
     async editAuthor(root, args, { currentUser }) {
       if (!currentUser) {
@@ -112,19 +121,9 @@ module.exports = {
       throw new UserInputError('wrong credentials')
     },
   },
-  Author: {
-    async bookCount(root) {
-      const author = await Author.findOne({ name: root.name })
-      const booksByAuthor = await Book.find({ author: author._id })
-      return booksByAuthor.length
-    },
-  },
-  Book: {
-    author(root) {
-      return {
-        name: root.author.name,
-        born: root.author.born,
-      }
+  Subscription: {
+    bookAdded: {
+      subscribe: () => pubSub.asyncIterator([BOOK_ADDED]),
     },
   },
 }

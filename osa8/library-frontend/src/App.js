@@ -4,19 +4,28 @@ import Books from './components/Books'
 import NewBook from './components/NewBook'
 import Notification from './components/Notification'
 import LoginForm from './components/LoginForm'
-import { useApolloClient } from '@apollo/client'
+import { useApolloClient, useSubscription } from '@apollo/client'
 import Recommendations from './components/Recommendations'
+import { BOOK_ADDED } from './queries'
+import {
+  updateBooksInCache,
+  updateAuthorsInCache,
+  updateRecommendationsInCache,
+} from './helper'
 
 const App = () => {
   const [page, setPage] = useState('authors')
   const [token, setToken] = useState(null)
-  const [errorMessage, setErrorMessage] = useState(null)
+  const [message, setMessage] = useState({})
   const client = useApolloClient()
 
-  const notify = msg => {
-    setErrorMessage(msg)
+  const setMessageWithTimeout = (text, type = 'info') => {
+    setMessage({
+      text,
+      type,
+    })
     setTimeout(() => {
-      setErrorMessage(null)
+      setMessage({})
     }, 5000)
   }
 
@@ -26,6 +35,17 @@ const App = () => {
     client.clearStore()
     setPage('authors')
   }
+
+  useSubscription(BOOK_ADDED, {
+    onSubscriptionData: ({ subscriptionData }) => {
+      const addedBook = subscriptionData.data.bookAdded
+      const addedAuthor = subscriptionData.data.bookAdded.author
+      setMessageWithTimeout(`${addedBook.title} added`)
+      updateBooksInCache(addedBook, client)
+      updateAuthorsInCache(addedAuthor, client)
+      updateRecommendationsInCache(addedBook, client)
+    },
+  })
 
   useEffect(() => {
     const token = localStorage.getItem('library-user-token')
@@ -49,24 +69,31 @@ const App = () => {
           <button onClick={() => setPage('login')}>log in</button>
         )}
       </div>
-      <Notification msg={errorMessage} />
-      <Authors show={page === 'authors'} setError={notify} token={token} />
-      <Books show={page === 'books'} setError={notify} />
+      <Notification msg={message} />
+      <Authors
+        show={page === 'authors'}
+        setError={setMessageWithTimeout}
+        token={token}
+      />
+      <Books show={page === 'books'} setError={setMessageWithTimeout} />
       <NewBook
         show={page === 'add'}
-        setError={notify}
+        setError={setMessageWithTimeout}
         setPage={setPage}
         client={client}
       />
       <LoginForm
         show={page === 'login'}
-        setError={notify}
+        setError={setMessageWithTimeout}
         setToken={setToken}
         setPage={setPage}
         client={client}
       />
       {token ? (
-        <Recommendations show={page === 'recommend'} setError={notify} />
+        <Recommendations
+          show={page === 'recommend'}
+          setError={setMessageWithTimeout}
+        />
       ) : null}
     </div>
   )

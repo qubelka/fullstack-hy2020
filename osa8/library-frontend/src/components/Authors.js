@@ -15,9 +15,9 @@ const Authors = props => {
 
   if (error) {
     if (error.graphQLErrors[0]) {
-      props.setError(error.graphQLErrors[0].message)
+      props.setError(error.graphQLErrors[0].message, 'error')
     } else {
-      props.setError(error.message)
+      props.setError(error.message, 'error')
     }
   }
 
