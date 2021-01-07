@@ -1,27 +1,9 @@
-interface BmiParameters {
+export interface BmiParameters {
   height: number;
   weight: number;
 }
 
-const parseBmiArguments = (args: string[]): BmiParameters => {
-  if (args.length < 4) throw new Error('Not enought arguments');
-  if (args.length > 4) throw new Error('Too many arguments');
-
-  if (!isNaN(Number(args[2])) && !isNaN(Number(args[3]))) {
-    return {
-      height: Number(args[2]),
-      weight: Number(args[3]),
-    };
-  } else {
-    throw new Error('Provided values were not numbers!');
-  }
-};
-
-const calculateBmi = (bmiParams: BmiParameters): string => {
-  if (bmiParams.height === 0 || bmiParams.weight === 0) {
-    throw new Error('Height or weight information is missing!');
-  }
-
+export const calculateBmi = (bmiParams: BmiParameters): string => {
   const heightInMeters = bmiParams.height / 100;
   const bmi = +(bmiParams.weight / heightInMeters ** 2).toFixed(1);
 
@@ -43,19 +25,3 @@ const calculateBmi = (bmiParams: BmiParameters): string => {
     return 'Obese Class III (Very severely obese)';
   }
 };
-
-try {
-  const bmiParams = parseBmiArguments(process.argv);
-  console.log(calculateBmi(bmiParams));
-} catch (e) {
-  console.log(`Error: ${e.message}`);
-}
-
-/*   
-  Test cases:
-  console.log(calculateBmi(180, 74)); // 22.8 Normal (healthy weight)
-  console.log(calculateBmi(180, 100)); // 30.9 Obese Class I (Moderately obese)
-  console.log(calculateBmi(180, 60)); // 18.5 Underweight
-  console.log(calculateBmi(160, 38)); // 14.8 Very severely underweight
-  console.log(calculateBmi(0, 74)); // Error: Height or weight information is missing! 
-*/
