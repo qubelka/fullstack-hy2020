@@ -1,7 +1,13 @@
 import express from 'express';
 import { BmiParameters, calculateBmi } from './bmiCalculator';
+import {
+  parseArguments,
+  calculateExercises,
+  ExerciseParameters,
+} from './exerciseCalculator';
 
 const app = express();
+app.use(express.json());
 
 app.get('/hello', (_req, res) => {
   res.send('Hello, Full Stack!');
@@ -31,6 +37,13 @@ app.get('/bmi', (req, res) => {
   const result: string = calculateBmi(bmiParams);
 
   return res.json({ ...bmiParams, bmi: result });
+});
+
+app.post('/exercises', parseArguments, (req, res) => {
+  // please notice that parseArguments is middleware now
+  const { target, daily_exercises } = req.body as ExerciseParameters;
+  const result = calculateExercises({ target, daily_exercises });
+  res.json(result);
 });
 
 const PORT = 3003;

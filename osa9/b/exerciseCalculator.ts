@@ -1,3 +1,5 @@
+import express from 'express';
+
 interface ExerciseProfile {
   periodLength: number;
   trainingDays: number;
@@ -8,39 +10,32 @@ interface ExerciseProfile {
   average: number;
 }
 
-interface ExerciseParameters {
+export interface ExerciseParameters {
   target: number;
-  dailyExercises: number[];
+  daily_exercises: number[];
 }
 
-type ExerciseInput = {
-  inputTarget: string;
-  inputDailyExercises: string[];
-};
+export const parseArguments = (
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction
+) => {
+  const { target, daily_exercises } = req.body as ExerciseParameters;
 
-const parseArguments = (args: ExerciseInput): ExerciseParameters => {
-  const { inputTarget, inputDailyExercises } = args;
-  if (!inputTarget || !inputDailyExercises[0])
-    throw new Error('Not enought arguments');
+  if (!target || !daily_exercises || daily_exercises.length === 0)
+    return res.status(400).send({ error: 'Parameters missing' });
 
-  // max periodLength 100 days ¯\_(ツ)_/¯
-  if (inputDailyExercises.length > 100) throw new Error('Too many arguments');
+  if (daily_exercises.length > 100 || isNaN(Number(target)))
+    return res.status(400).send({ error: 'Malformatted parameters' });
 
-  let target: number;
-  if (!isNaN(Number(inputTarget))) {
-    target = Number(inputTarget);
-  } else {
-    throw new Error('Target should be a number!');
-  }
-
-  const dailyExercises: number[] = inputDailyExercises.map((ex) => {
+  daily_exercises.map((ex) => {
     if (isNaN(Number(ex))) {
-      throw new Error('Exercise hours should be expressed as numbers!');
+      return res.status(400).send({ error: 'Malformatted parameters' });
     }
     return Number(ex);
   });
 
-  return { target, dailyExercises };
+  return next();
 };
 
 const ratings: { [key: number]: string } = {
@@ -70,13 +65,15 @@ const setRating = (average: number, target: number): number => {
  * 2) dailyExercises - A number array input.
  * Each cell represents an amount of exercise hours per day.
  */
-const calculateExercises = (params: ExerciseParameters): ExerciseProfile => {
-  const { target, dailyExercises } = params;
-  const trainingHours: number = dailyExercises.reduce((a, b) => {
+export const calculateExercises = (
+  params: ExerciseParameters
+): ExerciseProfile => {
+  const { target, daily_exercises } = params;
+  const trainingHours: number = daily_exercises.reduce((a, b) => {
     return a + b;
   }, 0);
 
-  const periodLength = dailyExercises.length;
+  const periodLength = daily_exercises.length;
   let average = 0;
   let rating = 0;
   let success = false;
@@ -88,7 +85,7 @@ const calculateExercises = (params: ExerciseParameters): ExerciseProfile => {
 
   return {
     periodLength,
-    trainingDays: dailyExercises.filter((hours) => hours !== 0).length,
+    trainingDays: daily_exercises.filter((hours) => hours !== 0).length,
     success,
     rating,
     ratingDescription: ratings[rating],
@@ -96,35 +93,3 @@ const calculateExercises = (params: ExerciseParameters): ExerciseProfile => {
     average,
   };
 };
-
-try {
-  const [, , inputTarget, ...inputDailyExercises] = process.argv;
-  const exerciseData = parseArguments({ inputTarget, inputDailyExercises });
-  console.log(calculateExercises(exerciseData));
-} catch (e) {
-  console.log(`Error: ${e.message}`);
-}
-
-/* 
-    Test cases:
-    console.log(calculateExercises(2, [3, 0, 2, 4.5, 0, 3, 1])); 
-    npm run calculateExercises 2 3 0 2 4.5 0 3 1
-    // 'Not too bad, but could be better'
-    * * *
-    console.log(calculateExercises(2.4, [3, 0, 2, 4.5, 0, 3, 1])); 
-    npm run calculateExercises 2.4 3 0 2 4.5 0 3 1
-    // 'Not too bad, but could be better'
-    * * *
-    console.log(calculateExercises(2, [])); // 'Can not calculate rating'
-    npm run calculateExercises 2 // 'Not enough arguments'
-    * * *
-    console.log(calculateExercises(1.9, [3, 0, 2, 4.5, 0, 3, 1, 3])); 
-    npm run calculateExercises 1.9 3 0 2 4.5 0 3 1
-    // 'Very good!' 
-    * * *
-    npm run calculateExercises 2 1 0 2 4.5 0 3 1 0 4 // 'Not too bad, but could be better'
-    * * *
-    npm run calculateExercises hello 5 // Error: Target should be a number!
-    * * *
-    npm run calculateExercises 2 there // Error: Exercise hours should be expressed as numbers!
-*/
